@@ -57,7 +57,7 @@ final coursesProvider = Provider<List<Course>>((ref) {
       subtitle: '',
       category: 'Design',
       imageUrl:
-          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+          'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-4.webp',
       rating: 4.8,
       duration: '10h 30m',
       price: 89.99,
@@ -68,7 +68,7 @@ final coursesProvider = Provider<List<Course>>((ref) {
       subtitle: '',
       category: 'Design',
       imageUrl:
-          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+          'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-4.webp',
       rating: 4.8,
       duration: '10h 30m',
       price: 89.99,
@@ -79,7 +79,7 @@ final coursesProvider = Provider<List<Course>>((ref) {
       subtitle: '',
       category: 'Design',
       imageUrl:
-          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+          'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-4.webp',
       rating: 4.8,
       duration: '10h 30m',
       price: 89.99,

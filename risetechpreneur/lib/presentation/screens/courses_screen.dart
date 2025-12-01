@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/models.dart';
 import 'package:risetechpreneur/data/providers.dart';
+import 'package:risetechpreneur/presentation/widgets/components.dart';
 
 /// Displays the full catalog of courses with category filters.
 ///
@@ -188,11 +189,7 @@ class _GridCourseCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      const Icon(
-                        Icons.star,
-                        size: 14,
-                        color: AppColors.accentYellow,
-                      ),
+                      StarRating(rating: course.rating, size: 12),
                       const SizedBox(width: 2),
                       Text(
                         course.rating.toString(),

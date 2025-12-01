@@ -5,8 +5,14 @@ class AppUser {
   final String id;
   final String email;
   final String? displayName;
+  final String? photoUrl;
 
-  AppUser({required this.id, required this.email, this.displayName});
+  AppUser({
+    required this.id,
+    required this.email,
+    this.displayName,
+    this.photoUrl,
+  });
 }
 
 /// Riverpod state for the current authenticated user (or `null` if logged out).
@@ -22,7 +28,12 @@ class AuthState extends StateNotifier<AppUser?> {
     await Future.delayed(const Duration(seconds: 1)); // Simulate Network Delay
 
     // Mock Success
-    state = AppUser(id: '123', email: email, displayName: 'Demo User');
+    state = AppUser(
+      id: '123',
+      email: email,
+      displayName: 'Demo User',
+      photoUrl: 'https://i.pravatar.cc/150?img=12', // Mock image
+    );
   }
 
   /// Mocks an email + password registration flow.

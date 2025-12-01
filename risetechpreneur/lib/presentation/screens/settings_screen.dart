@@ -47,40 +47,47 @@ class SettingsScreen extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: AppColors.primaryBlue,
-                    child: Text(
-                      user.displayName?.substring(0, 1).toUpperCase() ?? 'U',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                  user.photoUrl != null
+                      ? CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(user.photoUrl!),
+                      )
+                      : CircleAvatar(
+                        radius: 30,
+                        backgroundColor: AppColors.primaryBlue,
+                        child: Text(
+                          user.displayName?.substring(0, 1).toUpperCase() ??
+                              'U',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      Text(
-                        user.displayName ?? 'User',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: AppColors.secondaryNavy,
+                        Text(
+                          user.displayName ?? 'User',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: AppColors.secondaryNavy,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user.email,
-                        style: const TextStyle(
-                          color: AppColors.textGrey,
-                          fontSize: 14,
+                        const SizedBox(height: 4),
+                        Text(
+                          user.email,
+                          style: const TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ]),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -166,7 +173,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 child: const Text(
                   'Sign Out',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -180,10 +190,7 @@ class _SettingsSection extends StatelessWidget {
   final String title;
   final List<Widget> items;
 
-  const _SettingsSection({
-    required this.title,
-    required this.items,
-  });
+  const _SettingsSection({required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -254,14 +261,10 @@ class _SettingsItem extends StatelessWidget {
             ),
             if (trailing != null) trailing!,
             if (trailing == null)
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textGrey,
-              ),
+              const Icon(Icons.chevron_right, color: AppColors.textGrey),
           ],
         ),
       ),
     );
   }
 }
-

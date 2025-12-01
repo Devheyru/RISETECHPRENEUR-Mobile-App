@@ -5,7 +5,7 @@ import 'home_screen.dart';
 import 'courses_screen.dart';
 import 'blog_screen.dart';
 import 'contact_screen.dart';
-import 'settings_screen.dart';
+import 'more_screen.dart';
 
 /// High‑level navigation shell with a persistent bottom navigation bar.
 ///
@@ -26,16 +26,13 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
     const CoursesScreen(),
     const BlogScreen(),
     const ContactScreen(),
-    const SettingsScreen(),
+    const MoreScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -52,10 +49,7 @@ class _CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const _CustomBottomNavBar({
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const _CustomBottomNavBar({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -101,8 +95,8 @@ class _CustomBottomNavBar extends StatelessWidget {
                 onTap: () => onTap(3),
               ),
               _NavItem(
-                icon: Icons.settings_outlined,
-                label: 'Settings',
+                icon: Icons.grid_view_rounded,
+                label: 'More',
                 isActive: currentIndex == 4,
                 onTap: () => onTap(4),
               ),
@@ -163,4 +157,3 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
-

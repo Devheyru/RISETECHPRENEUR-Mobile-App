@@ -137,11 +137,7 @@ class CourseCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      const Icon(
-                        Icons.star,
-                        size: 16,
-                        color: AppColors.accentYellow,
-                      ),
+                      StarRating(rating: course.rating, size: 14),
                       const SizedBox(width: 4),
                       Text(
                         course.rating.toString(),
@@ -311,6 +307,48 @@ class CategoryItem extends StatelessWidget {
   }
 }
 
-// --- 5. Blog Card ---
-// Imported from blog_posts.dart to keep components organized
+// --- 5. Star Rating ---
+class StarRating extends StatelessWidget {
+  final double rating;
+  final double size;
+  final Color color;
+  final Color emptyColor;
 
+  const StarRating({
+    super.key,
+    required this.rating,
+    this.size = 16,
+    this.color = AppColors.accentYellow,
+    this.emptyColor = const Color(0xFFE0E0E0),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        if (index < rating.floor()) {
+          return Icon(Icons.star, size: size, color: color);
+        } else if (index < rating) {
+          return Stack(
+            children: [
+              Icon(Icons.star, size: size, color: emptyColor),
+              ClipRect(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: rating - index,
+                  child: Icon(Icons.star, size: size, color: color),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Icon(Icons.star, size: size, color: emptyColor);
+        }
+      }),
+    );
+  }
+}
+
+// --- 6. Blog Card ---
+// Imported from blog_posts.dart to keep components organized

@@ -22,14 +22,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   // Form Controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
 
   bool _isLoading = false;
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -37,8 +45,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     _tabController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _nameController.dispose();
     super.dispose();
+  }
+
+  // Validation Methods
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Email is required';
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) return 'Enter a valid email';
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Password is required';
+    if (value.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please confirm your password';
+    if (value != _passwordController.text) return 'Passwords do not match';
+    return null;
   }
 
   // Handle Form Submission
@@ -107,26 +136,37 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
                 // Tabs
                 Container(
+                  height: 55,
                   decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: TabBar(
                     controller: _tabController,
                     indicator: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.primaryBlue,
+                      borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
+                          color: AppColors.primaryBlue.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    indicatorPadding: const EdgeInsets.all(4),
-                    labelColor: AppColors.primaryBlue,
-                    unselectedLabelColor: AppColors.textGrey,
+                    indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: AppColors.textGrey,
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                     tabs: const [Tab(text: "Sign In"), Tab(text: "Register")],
                   ),
                 ),
@@ -154,8 +194,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           controller: _emailController,
                           label: "Email Address",
                           icon: Icons.email_outlined,
-                          validator:
-                              (v) => !v!.contains("@") ? "Invalid email" : null,
+                          validator: _validateEmail,
                         ),
                         const SizedBox(height: 16),
 
@@ -163,11 +202,33 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           controller: _passwordController,
                           label: "Password",
                           icon: Icons.lock_outline,
-                          obscureText: true,
-                          validator:
-                              (v) =>
-                                  v!.length < 6 ? "Password too short" : null,
+                          isPassword: true,
+                          isVisible: _isPasswordVisible,
+                          onVisibilityChanged: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                          validator: _validatePassword,
                         ),
+
+                        if (_tabController.index == 1) ...[
+                          const SizedBox(height: 16),
+                          _buildTextField(
+                            controller: _confirmPasswordController,
+                            label: "Confirm Password",
+                            icon: Icons.lock_outline,
+                            isPassword: true,
+                            isVisible: _isConfirmPasswordVisible,
+                            onVisibilityChanged: () {
+                              setState(() {
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
+                              });
+                            },
+                            validator: _validateConfirmPassword,
+                          ),
+                        ],
                       ],
                     );
                   },
@@ -230,16 +291,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    bool obscureText = false,
+    bool isPassword = false,
+    bool isVisible = false,
+    VoidCallback? onVisibilityChanged,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
-      obscureText: obscureText,
+      obscureText: isPassword && !isVisible,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: AppColors.textGrey),
+        suffixIcon:
+            isPassword
+                ? IconButton(
+                  icon: Icon(
+                    isVisible ? Icons.visibility : Icons.visibility_off,
+                    color: AppColors.textGrey,
+                  ),
+                  onPressed: onVisibilityChanged,
+                )
+                : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade200),

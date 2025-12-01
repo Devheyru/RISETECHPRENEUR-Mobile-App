@@ -1,12 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Contact screen with quick actions and a simple contact form.
 ///
 /// In a production app you would wire the actions to email / phone intents
 /// and send the form data to your backend or CRM.
-class ContactScreen extends StatelessWidget {
+class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
+
+  @override
+  State<ContactScreen> createState() => _ContactScreenState();
+}
+
+class _ContactScreenState extends State<ContactScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final String name = _nameController.text;
+    final String email = _emailController.text;
+    final String message = _messageController.text;
+
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'heyru638@gmail.com',
+      query: _encodeQueryParameters(<String, String>{
+        'subject': 'Contact from RiseTech App: $name',
+        'body': 'Name: $name\nEmail: $email\n\nMessage:\n$message',
+      }),
+    );
+
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch email app')),
+        );
+      }
+    }
+  }
+
+  String? _encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,52 +127,76 @@ class ContactScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: 'Message',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Message sent successfully!'),
-                      backgroundColor: AppColors.primaryBlue,
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
-                  );
-                },
-                child: const Text('Send Message'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _messageController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your message';
+                      }
+                      return null;
+                    },
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      labelText: 'Message',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _sendEmail,
+                      child: const Text('Send Message'),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

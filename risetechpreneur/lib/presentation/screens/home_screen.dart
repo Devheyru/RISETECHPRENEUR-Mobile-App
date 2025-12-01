@@ -10,6 +10,7 @@ import 'package:risetechpreneur/presentation/widgets/popular_courses.dart';
 import 'package:risetechpreneur/presentation/widgets/blog_section.dart';
 import 'package:risetechpreneur/presentation/widgets/category_section.dart';
 import 'auth_screen.dart'; // Import Auth Screen
+import 'settings_screen.dart'; // Import Settings Screen
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -137,44 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: List.generate(5, (index) {
-                                    if (index < t.rating.floor()) {
-                                      return const Icon(
-                                        Icons.star,
-                                        size: 18,
-                                        color: AppColors.accentYellow,
-                                      );
-                                    } else if (index < t.rating) {
-                                      return Stack(
-                                        children: [
-                                          Icon(
-                                            Icons.star,
-                                            size: 18,
-                                            color: Colors.grey[300],
-                                          ),
-                                          ClipRect(
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              widthFactor: t.rating - index,
-                                              child: const Icon(
-                                                Icons.star,
-                                                size: 18,
-                                                color: AppColors.accentYellow,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    } else {
-                                      return Icon(
-                                        Icons.star,
-                                        size: 18,
-                                        color: Colors.grey[300],
-                                      );
-                                    }
-                                  }),
-                                ),
+                                StarRating(rating: t.rating, size: 18),
                                 const SizedBox(height: 16),
                                 Text(
                                   '"${t.comment}"',
@@ -253,25 +217,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       actions: [
-        // Show Profile Pic if logged in, otherwise generic icon
+        // Show Profile Pic if logged in, otherwise generic placeholder
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child:
-              user != null
-                  ? Chip(
-                    avatar: const Icon(
-                      Icons.person,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    label: Text(user.displayName ?? 'User'),
-                    backgroundColor: AppColors.primaryBlue,
-                    labelStyle: const TextStyle(color: Colors.white),
-                  )
-                  : IconButton(
-                    icon: const Icon(Icons.person_outline, color: Colors.black),
-                    onPressed: () {},
+          child: GestureDetector(
+            onTap: () {
+              if (user != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
                   ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AuthScreen()),
+                );
+              }
+            },
+            child:
+                user?.photoUrl != null
+                    ? CircleAvatar(
+                      radius: 20,
+                      backgroundImage: NetworkImage(user!.photoUrl!),
+                    )
+                    : CircleAvatar(
+                      radius: 20,
+                      backgroundColor:
+                          user != null
+                              ? AppColors.primaryBlue
+                              : Colors.grey.shade200,
+                      child:
+                          user != null
+                              ? Text(
+                                user.displayName
+                                        ?.substring(0, 1)
+                                        .toUpperCase() ??
+                                    'U',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                              : const Icon(Icons.person, color: Colors.grey),
+                    ),
+          ),
         ),
       ],
     );
