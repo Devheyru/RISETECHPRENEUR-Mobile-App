@@ -35,14 +35,15 @@ class CoursesScreen extends ConsumerWidget {
               child: Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: categories.map((category) {
-                  return Chip(
-                    label: Text(category.name),
-                    avatar: Text(category.iconAsset),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: AppColors.primaryBlue),
-                  );
-                }).toList(),
+                children:
+                    categories.map((category) {
+                      return Chip(
+                        label: Text(category.name),
+                        avatar: Text(category.iconAsset),
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: AppColors.primaryBlue),
+                      );
+                    }).toList(),
               ),
             ),
 
@@ -108,15 +109,16 @@ class _GridCourseCard extends StatelessWidget {
                 course.imageUrl,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: Icon(
-                      Icons.broken_image,
-                      color: AppColors.textGrey,
+                errorBuilder:
+                    (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          color: AppColors.textGrey,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ),
             ),
           ),
@@ -173,54 +175,57 @@ class _GridCourseCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       course.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 14,
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleMedium?.copyWith(fontSize: 14),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.access_time,
-                              size: 12,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                course.duration,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(fontSize: 11),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                  SizedBox(
+                    height: 16,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                      children: [
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.access_time,
+                                size: 12,
+                                color: Colors.grey,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          "\$${course.price.toStringAsFixed(0)}",
-                          style: const TextStyle(
-                            color: AppColors.primaryBlue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  course.duration,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(fontSize: 11),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        Flexible(
+                          child: Text(
+                            "\$${course.price.toStringAsFixed(0)}",
+                            style: const TextStyle(
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -231,4 +236,3 @@ class _GridCourseCard extends StatelessWidget {
     );
   }
 }
-

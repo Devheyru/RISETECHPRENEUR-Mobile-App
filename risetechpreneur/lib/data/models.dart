@@ -1,6 +1,7 @@
 class Course {
   final String id;
   final String title;
+  final String subtitle;
   final String category;
   final String imageUrl;
   final double rating;
@@ -10,6 +11,7 @@ class Course {
   const Course({
     required this.id,
     required this.title,
+    required this.subtitle,
     required this.category,
     required this.imageUrl,
     required this.rating,

@@ -181,7 +181,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 48),
 
             // ----------------------------------------
-            _buildFooter(),
+            _buildFooter(context, ref), // Pass context and ref
           ],
         ),
       ),
@@ -234,12 +234,12 @@ class HomeScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Unlock Your Full\nEntrepreneurial Potential",
+            "Unlock Your Full\nEntrepreneurial Potential Today!",
             style: Theme.of(context).textTheme.displayLarge,
           ),
           const SizedBox(height: 16),
           Text(
-            "Master new skills in design, coding, and marketing with our expert-led courses.",
+            "Rise Techpreneur provides the essential skills and knowledge to launch and scale your own successful tech venture.Join us!",
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
@@ -251,7 +251,7 @@ class HomeScreen extends ConsumerWidget {
                   onPressed:
                       () =>
                           _handleEnrollment(context, ref, "All Access Bundle"),
-                  child: const Text("Join Now"),
+                  child: const Text("Get Started"),
                 ),
               ),
               const SizedBox(width: 16),
@@ -280,7 +280,7 @@ class HomeScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               image: const DecorationImage(
                 image: NetworkImage(
-                  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=60',
+                  'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-13.webp',
                 ),
                 fit: BoxFit.cover,
               ),
@@ -289,21 +289,21 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           // Stats
           const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               StatItem(
                 label: "Courses",
-                value: "50+",
+                value: "1.2k+",
                 icon: Icons.play_circle_outline,
               ),
               StatItem(
                 label: "Students",
-                value: "20k+",
+                value: "50k+",
                 icon: Icons.people_outline,
               ),
               StatItem(
-                label: "Instructors",
-                value: "15+",
+                label: "Success ",
+                value: "98%",
                 icon: Icons.school_outlined,
               ),
             ],
@@ -313,7 +313,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
       color: AppColors.footerBg,
@@ -330,7 +330,8 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {},
+            onPressed:
+                () => _handleEnrollment(context, ref, "All Access Bundle"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.primaryBlue,

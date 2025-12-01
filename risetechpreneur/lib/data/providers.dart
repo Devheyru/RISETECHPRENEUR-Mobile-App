@@ -6,10 +6,11 @@ final coursesProvider = Provider<List<Course>>((ref) {
   return [
     const Course(
       id: '1',
-      title: 'UI/UX Design Masterclass',
-      category: 'Design',
+      title: 'Digital Marketing Master Class',
+      subtitle: 'Ignite Ethiopia’s Digital Future—One Brand at a Time',
+      category: 'Marketing',
       imageUrl:
-          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+          'https://plus.unsplash.com/premium_photo-1681841957049-37fed0a9ba55?q=80&w=1187&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       rating: 4.8,
       duration: '10h 30m',
       price: 89.99,
@@ -17,6 +18,7 @@ final coursesProvider = Provider<List<Course>>((ref) {
     const Course(
       id: '2',
       title: 'Flutter Development Bootcamp',
+      subtitle: '',
       category: 'Development',
       imageUrl:
           'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=500&q=60',
@@ -27,12 +29,57 @@ final coursesProvider = Provider<List<Course>>((ref) {
     const Course(
       id: '3',
       title: 'Digital Marketing Zero to Hero',
+      subtitle: '',
       category: 'Marketing',
       imageUrl:
           'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=500&q=60',
       rating: 4.7,
       duration: '8h 15m',
       price: 49.99,
+    ),
+    const Course(
+      id: '4',
+      title: 'Digital Marketing Zero to Hero',
+      subtitle: '',
+      category: 'Marketing',
+      imageUrl:
+          'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=500&q=60',
+      rating: 4.7,
+      duration: '8h 15m',
+      price: 49.99,
+    ),
+    const Course(
+      id: '5',
+      title: 'UI/UX Design Masterclass',
+      subtitle: '',
+      category: 'Design',
+      imageUrl:
+          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+      rating: 4.8,
+      duration: '10h 30m',
+      price: 89.99,
+    ),
+    const Course(
+      id: '6',
+      title: 'UI/UX Design Masterclass',
+      subtitle: '',
+      category: 'Design',
+      imageUrl:
+          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+      rating: 4.8,
+      duration: '10h 30m',
+      price: 89.99,
+    ),
+    const Course(
+      id: '7',
+      title: 'UI/UX Design Masterclass',
+      subtitle: '',
+      category: 'Design',
+      imageUrl:
+          'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?auto=format&fit=crop&w=500&q=60',
+      rating: 4.8,
+      duration: '10h 30m',
+      price: 89.99,
     ),
   ];
 });
@@ -86,7 +133,7 @@ final blogsProvider = Provider<List<BlogPost>>((ref) {
       title: 'How to master UI/UX Design in 2024',
       date: 'Nov 20, 2023 • 5 min read',
       imageUrl:
-          'https://rise-techpreneur.havanacademy.com/assets/img/blog/blog-post-1.webp',
+          'https://rise-techpreneur.havanacademy.com/thumbnails/1763570891_dmmc.png',
     ),
     const BlogPost(
       id: '2',

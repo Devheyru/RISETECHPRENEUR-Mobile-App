@@ -14,6 +14,9 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       primaryColor: AppColors.primaryBlue,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primaryBlue,
+      ).copyWith(primary: AppColors.primaryBlue),
       scaffoldBackgroundColor: AppColors.background,
       useMaterial3: true,
       textTheme: GoogleFonts.interTextTheme().copyWith(

@@ -12,21 +12,19 @@ class PopularCoursesSection extends StatefulWidget {
 }
 
 class _PopularCoursesSectionState extends State<PopularCoursesSection> {
-  bool showAll = false;
-  static const int previewCount = 3;
+  int _visibleCount = 3;
 
   @override
   Widget build(BuildContext context) {
-    final coursesToShow =
-        showAll ? widget.courses : widget.courses.take(previewCount).toList();
+    final coursesToShow = widget.courses.take(_visibleCount).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(
+        const SectionHeader(
           title: "Popular Courses",
-          subtitle: "Explore our highest rated content",
-          onSeeAll: () {},
+          subtitle:
+              "Explore our diverse range of tech courses\ndesigned to equip you with the skills and knowledge",
         ),
 
         ListView.builder(
@@ -41,17 +39,37 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
               ),
         ),
 
-        if (widget.courses.length > previewCount)
-          TextButton(
-            onPressed: () {
-              setState(() {
-                showAll = !showAll;
-              });
-            },
-            child: Text(
-              showAll ? "Show Less" : "Show More",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+        if (_visibleCount < widget.courses.length || _visibleCount > 3)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_visibleCount < widget.courses.length)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _visibleCount += 3;
+                    });
+                  },
+                  child: const Text(
+                    "View All",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              if (_visibleCount < widget.courses.length && _visibleCount > 3)
+                const SizedBox(width: 16),
+              if (_visibleCount > 3)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _visibleCount = 3;
+                    });
+                  },
+                  child: const Text(
+                    "Show Less",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
           ),
       ],
     );
