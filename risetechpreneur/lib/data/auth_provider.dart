@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/legacy.dart';
 
-// Simple User Model
+/// Lightweight representation of an authenticated user.
 class AppUser {
   final String id;
   final String email;
@@ -9,11 +9,14 @@ class AppUser {
   AppUser({required this.id, required this.email, this.displayName});
 }
 
-// The State Class holding the current User (or null if logged out)
+/// Riverpod state for the current authenticated user (or `null` if logged out).
 class AuthState extends StateNotifier<AppUser?> {
   AuthState() : super(null); // Initial state is null (Logged Out)
 
-  // --- SIGN IN LOGIC ---
+  /// Mocks a sign‑in flow.
+  ///
+  /// In production, replace this with `FirebaseAuth` (or your backend of
+  /// choice) and persist the resulting user / token.
   Future<void> signIn(String email, String password) async {
     // TODO: Replace with await FirebaseAuth.instance.signInWithEmailAndPassword(...)
     await Future.delayed(const Duration(seconds: 1)); // Simulate Network Delay
@@ -22,7 +25,7 @@ class AuthState extends StateNotifier<AppUser?> {
     state = AppUser(id: '123', email: email, displayName: 'Demo User');
   }
 
-  // --- SIGN UP LOGIC ---
+  /// Mocks an email + password registration flow.
   Future<void> signUp(String email, String password, String name) async {
     // TODO: Replace with await FirebaseAuth.instance.createUserWithEmailAndPassword(...)
     await Future.delayed(const Duration(seconds: 1));
@@ -30,14 +33,14 @@ class AuthState extends StateNotifier<AppUser?> {
     state = AppUser(id: '456', email: email, displayName: name);
   }
 
-  // --- SIGN OUT ---
+  /// Clears the in‑memory auth state.
   Future<void> signOut() async {
     // TODO: await FirebaseAuth.instance.signOut();
     state = null;
   }
 }
 
-// The Global Provider to access Auth Logic anywhere
+/// Global provider that exposes [AuthState] and the current [AppUser].
 final authProvider = StateNotifierProvider<AuthState, AppUser?>((ref) {
   return AuthState();
 });

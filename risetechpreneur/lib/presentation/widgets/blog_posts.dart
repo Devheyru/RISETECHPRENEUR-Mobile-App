@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../core/app_theme.dart';
 import '../../data/models.dart';
 
-// --- Blog Card Widget ---
-// Used in the "Latest Blog News" section.
+/// Card widget used to render a single [BlogPost] in lists and sections.
+///
+/// The layout is intentionally compact so it can be reused in both the
+/// home‑page blog section and the dedicated blog screen.
 class BlogCard extends StatelessWidget {
   final BlogPost blog;
 

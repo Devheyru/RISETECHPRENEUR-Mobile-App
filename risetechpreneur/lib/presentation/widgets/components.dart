@@ -3,6 +3,12 @@ import '../../core/app_theme.dart';
 import '../../data/models.dart';
 export 'blog_posts.dart'; // Export BlogCard for use through components.dart
 
+/// Collection of reusable UI components used across multiple screens.
+///
+/// Keeping these in one place makes it easy to evolve the visual language
+/// of the app (e.g. course cards, stats, section headers) without touching
+/// every screen.
+
 // --- 1. Section Header ---
 // Used for all major sections (e.g., Popular Courses, Course Categories).
 class SectionHeader extends StatelessWidget {
@@ -307,3 +313,4 @@ class CategoryItem extends StatelessWidget {
 
 // --- 5. Blog Card ---
 // Imported from blog_posts.dart to keep components organized
+

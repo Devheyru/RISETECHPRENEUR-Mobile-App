@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
 
+/// Authentication screen with tabbed sign‑in / sign‑up flows.
+///
+/// The actual auth logic is mocked in [AuthState]; swap it out for your
+/// real backend when you're ready (Firebase, Supabase, custom API, etc.).
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 

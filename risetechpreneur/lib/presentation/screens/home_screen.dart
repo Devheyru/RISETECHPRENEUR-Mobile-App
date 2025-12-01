@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
@@ -5,10 +7,55 @@ import 'package:risetechpreneur/data/auth_provider.dart';
 import 'package:risetechpreneur/data/providers.dart';
 import 'package:risetechpreneur/presentation/widgets/components.dart';
 import 'package:risetechpreneur/presentation/widgets/popular_courses.dart';
+import 'package:risetechpreneur/presentation/widgets/blog_section.dart';
+import 'package:risetechpreneur/presentation/widgets/category_section.dart';
 import 'auth_screen.dart'; // Import Auth Screen
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  static const int _initialTestimonialPage = 1000;
+  late final PageController _testimonialController;
+  Timer? _testimonialTimer;
+  int _currentTestimonialPage = _initialTestimonialPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _testimonialController = PageController(
+      viewportFraction: 0.9,
+      initialPage: _initialTestimonialPage,
+    );
+    _startTestimonialsAutoScroll();
+  }
+
+  void _startTestimonialsAutoScroll() {
+    _testimonialTimer?.cancel();
+    _testimonialTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted || !_testimonialController.hasClients) return;
+      final testimonials = ref.read(testimonialsProvider);
+      if (testimonials.length <= 1) return;
+      final nextPage = _currentTestimonialPage + 1;
+      _testimonialController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentTestimonialPage = nextPage);
+    });
+  }
+
+  @override
+  void dispose() {
+    _testimonialTimer?.cancel();
+    _testimonialController.dispose();
+    super.dispose();
+  }
 
   // --- NEW LOGIC: Centralized Enrollment Handler ---
   void _handleEnrollment(
@@ -36,7 +83,7 @@ class HomeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final courses = ref.watch(coursesProvider);
     final categories = ref.watch(categoriesProvider);
     final testimonials = ref.watch(testimonialsProvider);
@@ -59,125 +106,128 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // Categories Section
-            const SectionHeader(title: "Course Categories"),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.5,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: categories.length,
-                itemBuilder:
-                    (context, index) =>
-                        CategoryItem(category: categories[index]),
-              ),
-            ),
+            CategorySection(categories: categories),
 
             const SizedBox(height: 48),
 
             // ... existing Testimonials Section ...
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              // ... existing testimonial content ...
-              child: Column(
-                children: [
-                  const SectionHeader(title: "What Our Students Say"),
-                  // ... existing PageView ...
-                  SizedBox(
-                    height: 200,
-                    child: PageView.builder(
-                      // ... existing implementation ...
-                      itemCount: testimonials.length,
-                      itemBuilder: (context, index) {
-                        // ... existing implementation ...
-                        final t = testimonials[index];
-                        return Container(
-                          // ... existing container properties ...
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: List.generate(
-                                  5,
-                                  (i) => Icon(
-                                    Icons.star,
-                                    size: 18,
-                                    color:
-                                        i < t.rating
-                                            ? AppColors.accentYellow
-                                            : Colors.grey[300],
-                                  ),
+            if (testimonials.isNotEmpty)
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Column(
+                  children: [
+                    const SectionHeader(title: "What Our Students Say"),
+                    SizedBox(
+                      height: 200,
+                      child: PageView.builder(
+                        controller: _testimonialController,
+                        onPageChanged:
+                            (index) =>
+                                setState(() => _currentTestimonialPage = index),
+                        itemBuilder: (context, index) {
+                          final t = testimonials[index % testimonials.length];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: List.generate(5, (index) {
+                                    if (index < t.rating.floor()) {
+                                      return const Icon(
+                                        Icons.star,
+                                        size: 18,
+                                        color: AppColors.accentYellow,
+                                      );
+                                    } else if (index < t.rating) {
+                                      return Stack(
+                                        children: [
+                                          Icon(
+                                            Icons.star,
+                                            size: 18,
+                                            color: Colors.grey[300],
+                                          ),
+                                          ClipRect(
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              widthFactor: t.rating - index,
+                                              child: const Icon(
+                                                Icons.star,
+                                                size: 18,
+                                                color: AppColors.accentYellow,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    } else {
+                                      return Icon(
+                                        Icons.star,
+                                        size: 18,
+                                        color: Colors.grey[300],
+                                      );
+                                    }
+                                  }),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                '"${t.comment}"',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontStyle: FontStyle.italic,
+                                const SizedBox(height: 16),
+                                Text(
+                                  '"${t.comment}"',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                  maxLines: 3,
                                 ),
-                                maxLines: 3,
-                              ),
-                              const Spacer(),
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundImage: NetworkImage(t.userImage),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        t.userName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        t.userImage,
                                       ),
-                                      Text(
-                                        t.role,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          t.userName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                        Text(
+                                          t.role,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
             const SizedBox(height: 32),
 
             // --- NEW: Blog Section to match Image ---
-            SectionHeader(title: "Latest Blog News", onSeeAll: () {}),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: blogs.map((blog) => BlogCard(blog: blog)).toList(),
-              ),
-            ),
+            BlogSection(blogs: blogs),
             const SizedBox(height: 48),
 
             // ----------------------------------------
@@ -340,7 +390,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            "© 2024 RiseTech Inc. All rights reserved.",
+            "© 2025 RiseTechPrenuer Inc. All rights reserved.",
             style: TextStyle(
               color: Colors.white.withOpacity(0.5),
               fontSize: 12,

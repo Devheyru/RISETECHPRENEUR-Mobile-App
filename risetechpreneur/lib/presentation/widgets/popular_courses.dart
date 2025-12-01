@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:risetechpreneur/data/models.dart';
 import 'package:risetechpreneur/presentation/widgets/components.dart';
 
+/// Home‑page section that highlights a curated list of popular courses
+/// with lazy "View All / Show Less" pagination.
 class PopularCoursesSection extends StatefulWidget {
   final List<Course> courses;
 

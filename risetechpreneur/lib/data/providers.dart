@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'models.dart';
 
-// Mock Data Generators - simulating API responses
+/// Riverpod providers that expose mock data for the UI.
+///
+/// These simulate API responses and can later be replaced with real
+/// repositories or remote data sources without touching the UI layer.
 final coursesProvider = Provider<List<Course>>((ref) {
   return [
     const Course(
@@ -87,7 +90,12 @@ final coursesProvider = Provider<List<Course>>((ref) {
 final categoriesProvider = Provider<List<Category>>((ref) {
   return [
     const Category(id: '1', name: 'Design', iconAsset: '🎨', coursesCount: 120),
-    const Category(id: '2', name: 'Coding', iconAsset: '💻', coursesCount: 250),
+    const Category(
+      id: '2',
+      name: 'Programming',
+      iconAsset: '💻',
+      coursesCount: 250,
+    ),
     const Category(
       id: '3',
       name: 'Marketing',
@@ -99,6 +107,34 @@ final categoriesProvider = Provider<List<Category>>((ref) {
       name: 'Business',
       iconAsset: '💼',
       coursesCount: 100,
+    ),
+    const Category(id: "5", name: "Web 3", iconAsset: "🕸️", coursesCount: 112),
+    const Category(id: "6", name: "AI", iconAsset: "🤖", coursesCount: 150),
+    const Category(
+      id: "7",
+      name: "Automation",
+      iconAsset: "⚙️",
+      coursesCount: 80,
+    ),
+    const Category(
+      id: "8",
+      name: "Languages",
+      iconAsset: "🌍",
+      coursesCount: 0,
+    ),
+    const Category(id: "9", name: "Finance", iconAsset: "💰", coursesCount: 0),
+    const Category(id: "10", name: "Writing", iconAsset: "✍️", coursesCount: 0),
+    const Category(
+      id: "11",
+      name: "Psychology",
+      iconAsset: "🧠",
+      coursesCount: 0,
+    ),
+    const Category(
+      id: "12",
+      name: "Communication",
+      iconAsset: "🗣️",
+      coursesCount: 0,
     ),
   ];
 });
@@ -112,7 +148,7 @@ final testimonialsProvider = Provider<List<Testimonial>>((ref) {
       userImage: 'https://randomuser.me/api/portraits/women/44.jpg',
       comment:
           "This platform completely changed my career path. The UI course was fantastic!",
-      rating: 5.0,
+      rating: 4.8,
     ),
     const Testimonial(
       id: '2',
@@ -123,6 +159,14 @@ final testimonialsProvider = Provider<List<Testimonial>>((ref) {
           "The best investment I've made for my skills. Highly recommended.",
       rating: 4.8,
     ),
+    const Testimonial(
+      id: "3",
+      userName: "Heyru Jemal",
+      role: "Developer",
+      userImage: "https://randomuser.me/api/portraits/men/68.jpg",
+      comment: "Great platform to learn and grow!",
+      rating: 4.9,
+    ),
   ];
 });
 // Add this to the end of the file
@@ -131,21 +175,21 @@ final blogsProvider = Provider<List<BlogPost>>((ref) {
     const BlogPost(
       id: '1',
       title: 'How to master UI/UX Design in 2024',
-      date: 'Nov 20, 2023 • 5 min read',
+      date: 'Nov 20, 2025 • 5 min read',
       imageUrl:
           'https://rise-techpreneur.havanacademy.com/thumbnails/1763570891_dmmc.png',
     ),
     const BlogPost(
       id: '2',
       title: 'The Future of Flutter Development',
-      date: 'Nov 18, 2023 • 8 min read',
+      date: 'Nov 18, 2025 • 8 min read',
       imageUrl:
           'https://rise-techpreneur.havanacademy.com/assets/img/blog/blog-post-2.webp',
     ),
     const BlogPost(
       id: '3',
       title: 'SEO Strategies for Startups',
-      date: 'Nov 15, 2023 • 4 min read',
+      date: 'Nov 15, 2025 • 4 min read',
       imageUrl:
           'https://rise-techpreneur.havanacademy.com/assets/img/blog/blog-post-3.webp',
     ),

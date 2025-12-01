@@ -4,6 +4,8 @@ import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/providers.dart';
 import 'package:risetechpreneur/presentation/widgets/components.dart';
 
+/// Simple list screen that surfaces marketing / learning content from
+/// [blogsProvider].
 class BlogScreen extends ConsumerWidget {
   const BlogScreen({super.key});
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// Central color palette for the RiseTechpreneur brand and UI.
 class AppColors {
   static const Color primaryBlue = Color(0xFF155DFC); // Primary Blue #155DFC
   static const Color secondaryNavy = Color(0xFF1E293B); // Dark text
@@ -10,6 +11,7 @@ class AppColors {
   static const Color footerBg = Color(0xFF0F172A); // Dark footer
 }
 
+/// Central place to configure global [ThemeData] for the app.
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(

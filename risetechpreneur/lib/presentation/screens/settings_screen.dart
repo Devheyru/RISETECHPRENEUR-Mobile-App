@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
 
+/// Settings screen that shows basic account info and local preferences.
+///
+/// This is a good place to wire in real account management flows,
+/// notification toggles, and support links.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 

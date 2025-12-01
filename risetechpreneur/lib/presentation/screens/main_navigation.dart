@@ -7,6 +7,10 @@ import 'blog_screen.dart';
 import 'contact_screen.dart';
 import 'settings_screen.dart';
 
+/// High‑level navigation shell with a persistent bottom navigation bar.
+///
+/// Uses an [IndexedStack] so each tab preserves its state while the user
+/// switches between Home, Courses, Blog, Contact, and Settings.
 class MainNavigation extends ConsumerStatefulWidget {
   const MainNavigation({super.key});
 

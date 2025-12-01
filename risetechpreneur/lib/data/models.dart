@@ -1,3 +1,6 @@
+/// Core domain models used across the RiseTechpreneur app.
+
+/// Represents a single course in the RiseTechpreneur catalog.
 class Course {
   final String id;
   final String title;
@@ -20,6 +23,7 @@ class Course {
   });
 }
 
+/// Groups courses under a semantic label (e.g. "Design", "Marketing").
 class Category {
   final String id;
   final String name;
@@ -34,6 +38,7 @@ class Category {
   });
 }
 
+/// Feedback left by a learner that is surfaced in the testimonials carousel.
 class Testimonial {
   final String id;
   final String userName;
@@ -52,6 +57,7 @@ class Testimonial {
   });
 }
 
+/// Lightweight representation of a marketing / content blog post.
 class BlogPost {
   final String id;
   final String title;

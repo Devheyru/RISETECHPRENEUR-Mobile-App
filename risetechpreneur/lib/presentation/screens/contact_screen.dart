@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 
+/// Contact screen with quick actions and a simple contact form.
+///
+/// In a production app you would wire the actions to email / phone intents
+/// and send the form data to your backend or CRM.
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
 
@@ -48,14 +52,14 @@ class ContactScreen extends StatelessWidget {
             _ContactCard(
               icon: Icons.phone_outlined,
               title: 'Phone',
-              subtitle: '+1 (555) 123-4567',
+              subtitle: '+251970400883',
               onTap: () {},
             ),
             const SizedBox(height: 16),
             _ContactCard(
               icon: Icons.location_on_outlined,
               title: 'Address',
-              subtitle: '123 Tech Street, San Francisco, CA 94102',
+              subtitle: 'Addis Ababa, Ethiopia',
               onTap: () {},
             ),
             const SizedBox(height: 32),
@@ -162,11 +166,7 @@ class _ContactCard extends StatelessWidget {
                 color: AppColors.primaryBlue.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                color: AppColors.primaryBlue,
-                size: 24,
-              ),
+              child: Icon(icon, color: AppColors.primaryBlue, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -197,4 +197,3 @@ class _ContactCard extends StatelessWidget {
     );
   }
 }
-

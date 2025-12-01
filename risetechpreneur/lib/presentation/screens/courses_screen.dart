@@ -4,13 +4,34 @@ import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/models.dart';
 import 'package:risetechpreneur/data/providers.dart';
 
-class CoursesScreen extends ConsumerWidget {
+/// Displays the full catalog of courses with category filters.
+///
+/// Categories are rendered as horizontally scrollable chips; selecting one
+/// updates the grid below without leaving the screen.
+class CoursesScreen extends ConsumerStatefulWidget {
   const CoursesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CoursesScreen> createState() => _CoursesScreenState();
+}
+
+class _CoursesScreenState extends ConsumerState<CoursesScreen> {
+  String _selectedCategory = 'All';
+
+  @override
+  Widget build(BuildContext context) {
     final courses = ref.watch(coursesProvider);
     final categories = ref.watch(categoriesProvider);
+    final filteredCourses =
+        _selectedCategory == 'All'
+            ? courses
+            : courses
+                .where(
+                  (course) =>
+                      course.category.toLowerCase() ==
+                      _selectedCategory.toLowerCase(),
+                )
+                .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -30,20 +51,31 @@ class CoursesScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Categories Filter
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children:
-                    categories.map((category) {
-                      return Chip(
-                        label: Text(category.name),
-                        avatar: Text(category.iconAsset),
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: AppColors.primaryBlue),
-                      );
-                    }).toList(),
+            SizedBox(
+              height: 60,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _CategoryChip(
+                      label: 'All',
+                      isActive: _selectedCategory == 'All',
+                      onSelected:
+                          () => setState(() => _selectedCategory = 'All'),
+                    );
+                  }
+                  final category = categories[index - 1];
+                  return _CategoryChip(
+                    label: category.name,
+                    icon: category.iconAsset,
+                    isActive: _selectedCategory == category.name,
+                    onSelected:
+                        () => setState(() => _selectedCategory = category.name),
+                  );
+                },
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemCount: categories.length + 1,
               ),
             ),
 
@@ -59,9 +91,9 @@ class CoursesScreen extends ConsumerWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                itemCount: courses.length,
+                itemCount: filteredCourses.length,
                 itemBuilder: (context, index) {
-                  final course = courses[index];
+                  final course = filteredCourses[index];
                   return _GridCourseCard(course: course);
                 },
               ),
@@ -171,7 +203,7 @@ class _GridCourseCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Flexible(
                     child: Text(
                       course.title,
@@ -233,6 +265,52 @@ class _GridCourseCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final String label;
+  final String? icon;
+  final bool isActive;
+  final VoidCallback onSelected;
+
+  const _CategoryChip({
+    required this.label,
+    this.icon,
+    required this.isActive,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      selected: isActive,
+      onSelected: (_) => onSelected(),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[Text(icon!), const SizedBox(width: 6)],
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isActive ? Colors.white : AppColors.secondaryNavy,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.white,
+      selectedColor: AppColors.primaryBlue,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.primaryBlue),
+      ),
+      showCheckmark: false,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
   }
 }
