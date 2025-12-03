@@ -1,4 +1,5 @@
 /// Core domain models used across the RiseTechpreneur app.
+library;
 
 /// Represents a single course in the RiseTechpreneur catalog.
 class Course {

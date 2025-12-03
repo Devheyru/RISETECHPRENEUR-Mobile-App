@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
@@ -24,6 +25,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
@@ -47,6 +49,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -55,6 +58,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     if (value == null || value.isEmpty) return 'Email is required';
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) return 'Enter a valid email';
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+
+    final phoneRegex = RegExp(r'^\d{10,}$'); // only digits, minimum 10 digits
+
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Enter a valid phone number (digits only)';
+    }
+
     return null;
   }
 
@@ -86,6 +103,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           _emailController.text,
           _passwordController.text,
           _nameController.text,
+          _phoneController.text,
         );
       }
 
@@ -188,6 +206,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                                 (v) => v!.isEmpty ? "Name is required" : null,
                           ),
                           const SizedBox(height: 16),
+                          _buildTextField(
+                            controller: _phoneController,
+                            label: "Phone Number",
+                            icon: Icons.phone_outlined,
+                            validator: _validatePhone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                         ],
 
                         _buildTextField(
@@ -211,6 +239,24 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           },
                           validator: _validatePassword,
                         ),
+
+                        if (_tabController.index == 0) ...[
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                // TODO: Implement Forgot Password UI/Logic
+                              },
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  color: AppColors.primaryBlue,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
 
                         if (_tabController.index == 1) ...[
                           const SizedBox(height: 16),
@@ -257,28 +303,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                             ),
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Social Login Placeholder
-                Center(
-                  child: Text(
-                    "Or continue with",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSocialButton(
-                      Icons.g_mobiledata,
-                      "Google",
-                    ), // Mock Icon
-                    const SizedBox(width: 16),
-                    _buildSocialButton(Icons.apple, "Apple"),
-                  ],
-                ),
               ],
             ),
           ),
@@ -295,11 +319,24 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     bool isVisible = false,
     VoidCallback? onVisibilityChanged,
     String? Function(String?)? validator,
+
+    // ADD THIS
+    List<TextInputFormatter>? inputFormatters,
+
+    // OPTIONAL (useful for numeric fields)
+    TextInputType? keyboardType,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword && !isVisible,
       validator: validator,
+
+      // ADD THIS
+      inputFormatters: inputFormatters,
+
+      // OPTIONAL
+      keyboardType: keyboardType,
+
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: AppColors.textGrey),
@@ -327,27 +364,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         ),
         filled: true,
         fillColor: Colors.white,
-      ),
-    );
-  }
-
-  Widget _buildSocialButton(IconData icon, String label) {
-    return InkWell(
-      onTap: () {}, // Trigger Firebase Social Auth here
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon),
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
-        ),
       ),
     );
   }

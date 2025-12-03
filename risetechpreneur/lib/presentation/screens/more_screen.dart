@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
-import 'package:risetechpreneur/presentation/screens/settings_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});

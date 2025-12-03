@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "688006449226",
+    "project_id": "rise-tech-121",
+    "storage_bucket": "rise-tech-121.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688006449226:android:166334a8c93ff211a63eb3",
+        "android_client_info": {
+          "package_name": "com.example.risetechpreneur"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "688006449226-cpcddto2jdo3r9df83cjh5el8ecohrq1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.risetechpreneur",
+            "certificate_hash": "fe70d3df194e340466ebd055041014f76e5bc368"
+          }
+        },
+        {
+          "client_id": "688006449226-ul5hrrv5nvvqgbbfuu27ojtk1anvt0ct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo1NOG4wTZYl_80xT7Kv1MSvFnkcFkUDM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "688006449226-ul5hrrv5nvvqgbbfuu27ojtk1anvt0ct.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "688006449226-9ankio8d6l1ak889v1il429cbrs16qed.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.risetechpreneur"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
