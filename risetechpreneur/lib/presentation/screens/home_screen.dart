@@ -236,32 +236,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 );
               }
             },
-            child:
-                user?.photoUrl != null
-                    ? CircleAvatar(
-                      radius: 20,
-                      backgroundImage: NetworkImage(user!.photoUrl!),
-                    )
-                    : CircleAvatar(
-                      radius: 20,
-                      backgroundColor:
-                          user != null
-                              ? AppColors.primaryBlue
-                              : Colors.grey.shade200,
-                      child:
-                          user != null
-                              ? Text(
-                                user.displayName
-                                        ?.substring(0, 1)
-                                        .toUpperCase() ??
-                                    'U',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                              : const Icon(Icons.person, color: Colors.grey),
-                    ),
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor:
+                  user != null ? AppColors.primaryBlue : Colors.grey.shade200,
+              child:
+                  user != null
+                      ? Text(
+                        user.displayName.isNotEmpty
+                            ? user.displayName.substring(0, 1).toUpperCase()
+                            : 'U',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                      : const Icon(Icons.person, color: Colors.grey),
+            ),
           ),
         ),
       ],

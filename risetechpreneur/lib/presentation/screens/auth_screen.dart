@@ -5,9 +5,6 @@ import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
 
 /// Authentication screen with tabbed sign‑in / sign‑up flows.
-///
-/// The actual auth logic is mocked in [AuthState]; swap it out for your
-/// real backend when you're ready (Firebase, Supabase, custom API, etc.).
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
@@ -24,7 +21,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
 
   bool _isLoading = false;
@@ -48,7 +46,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -65,13 +64,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     if (value == null || value.isEmpty) {
       return 'Phone number is required';
     }
-
-    final phoneRegex = RegExp(r'^\d{10,}$'); // only digits, minimum 10 digits
-
+    final phoneRegex = RegExp(r'^\d{10,}$');
     if (!phoneRegex.hasMatch(value)) {
       return 'Enter a valid phone number (digits only)';
     }
-
     return null;
   }
 
@@ -100,10 +96,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         await auth.signIn(_emailController.text, _passwordController.text);
       } else {
         await auth.signUp(
-          _emailController.text,
-          _passwordController.text,
-          _nameController.text,
-          _phoneController.text,
+          firstName: _firstNameController.text,
+          lastName: _lastNameController.text,
+          phone: _phoneController.text,
+          email: _emailController.text,
+          password: _passwordController.text,
+          confirmPassword: _confirmPasswordController.text,
         );
       }
 
@@ -119,6 +117,66 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showForgotPasswordDialog() {
+    final emailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Reset Password"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Enter your email to receive a password reset link.",
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: "Email Address",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final email = emailController.text.trim();
+                  if (email.isEmpty) return;
+
+                  Navigator.pop(context);
+                  try {
+                    await ref
+                        .read(authProvider.notifier)
+                        .requestPasswordReset(email);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Reset link sent to your email"),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                    }
+                  }
+                },
+                child: const Text("Send"),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -196,14 +254,30 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                   builder: (context, _) {
                     return Column(
                       children: [
-                        // Name Field (Only for Register)
+                        // Name Fields (Only for Register)
                         if (_tabController.index == 1) ...[
-                          _buildTextField(
-                            controller: _nameController,
-                            label: "Full Name",
-                            icon: Icons.person_outline,
-                            validator:
-                                (v) => v!.isEmpty ? "Name is required" : null,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildTextField(
+                                  controller: _firstNameController,
+                                  label: "First Name",
+                                  icon: Icons.person_outline,
+                                  validator:
+                                      (v) => v!.isEmpty ? "Required" : null,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildTextField(
+                                  controller: _lastNameController,
+                                  label: "Last Name",
+                                  icon: Icons.person_outline,
+                                  validator:
+                                      (v) => v!.isEmpty ? "Required" : null,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 16),
                           _buildTextField(
@@ -244,9 +318,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: () {
-                                // TODO: Implement Forgot Password UI/Logic
-                              },
+                              onPressed: _showForgotPasswordDialog,
                               child: const Text(
                                 "Forgot Password?",
                                 style: TextStyle(
@@ -319,24 +391,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     bool isVisible = false,
     VoidCallback? onVisibilityChanged,
     String? Function(String?)? validator,
-
-    // ADD THIS
     List<TextInputFormatter>? inputFormatters,
-
-    // OPTIONAL (useful for numeric fields)
     TextInputType? keyboardType,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword && !isVisible,
       validator: validator,
-
-      // ADD THIS
       inputFormatters: inputFormatters,
-
-      // OPTIONAL
       keyboardType: keyboardType,
-
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: AppColors.textGrey),

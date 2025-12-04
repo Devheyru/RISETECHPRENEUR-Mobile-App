@@ -45,5 +45,18 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>risetechpreneur</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>risetechpreneur</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
