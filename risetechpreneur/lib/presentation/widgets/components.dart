@@ -96,6 +96,8 @@ class CourseCard extends StatelessWidget {
                 height: 160,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                cacheHeight: 400, // Optimize memory usage
+                cacheWidth: 800,
                 // Using a key for optimization and a placeholder in case of network issues
                 key: ValueKey(course.imageUrl),
                 errorBuilder:

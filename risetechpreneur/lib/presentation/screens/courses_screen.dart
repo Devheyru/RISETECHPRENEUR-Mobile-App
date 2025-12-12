@@ -142,6 +142,7 @@ class _GridCourseCard extends StatelessWidget {
                 course.imageUrl,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                cacheWidth: 600, // Optimize memory usage
                 errorBuilder:
                     (context, error, stackTrace) => Container(
                       color: Colors.grey[200],

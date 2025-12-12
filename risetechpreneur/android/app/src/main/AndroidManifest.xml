@@ -31,6 +31,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="risetechpreneur" android:host="reset-password" />
             </intent-filter>
+            <!-- App Links (HTTPS) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" 
+                      android:host="rise-techpreneur.havanacademy.com" 
+                      android:pathPrefix="/api/password/reset" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

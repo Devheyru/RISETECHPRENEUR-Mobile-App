@@ -37,6 +37,8 @@ class BlogCard extends StatelessWidget {
               height: 80,
               width: 80,
               fit: BoxFit.cover,
+              cacheHeight: 200,
+              cacheWidth: 200,
             ),
           ),
           const SizedBox(width: 16),

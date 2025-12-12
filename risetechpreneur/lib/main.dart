@@ -4,8 +4,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // For kReleaseMode
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_links/app_links.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:risetechpreneur/presentation/screens/main_navigation.dart';
 import 'package:risetechpreneur/presentation/screens/reset_password_screen.dart';
 import 'core/app_theme.dart';
@@ -14,7 +16,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     // Riverpod needs a [ProviderScope] at the root of the widget tree.
-    const ProviderScope(child: MyApp()),
+    ProviderScope(
+      child: DevicePreview(
+        enabled: !kReleaseMode,
+        builder: (context) => const MyApp(),
+      ),
+    ),
   );
 }
 
@@ -52,8 +59,17 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleDeepLink(Uri uri) {
-    // Expected format: risetechpreneur://reset-password?token=...&email=...
-    if (uri.host == 'reset-password') {
+    // Check for custom scheme: risetechpreneur://reset-password
+    // OR HTTPS scheme: https://rise-techpreneur.havanacademy.com/api/password/reset
+
+    final isCustomScheme =
+        uri.scheme == 'risetechpreneur' && uri.host == 'reset-password';
+    final isHttpsScheme =
+        uri.scheme == 'https' &&
+        uri.host == 'rise-techpreneur.havanacademy.com' &&
+        uri.path.contains('/password/reset');
+
+    if (isCustomScheme || isHttpsScheme) {
       final token = uri.queryParameters['token'];
       final email = uri.queryParameters['email'];
 
@@ -74,6 +90,9 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: _navigatorKey,
       title: 'RiseTech App',
       debugShowCheckedModeBanner: false,
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
       // 2. Apply the centralized theme
       theme: AppTheme.lightTheme,
       home: const MainNavigation(),

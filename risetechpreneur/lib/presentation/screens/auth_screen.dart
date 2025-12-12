@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
+import 'package:risetechpreneur/core/error_handler.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
 
 /// Authentication screen with tabbed sign‑in / sign‑up flows.
@@ -108,11 +109,36 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       if (mounted) {
         Navigator.pop(context); // Close screen on success
       }
-    } catch (e) {
+    } on AuthException catch (e) {
+      // Display the user-friendly message from our custom exception
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.userFriendlyMessage),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle any other unexpected errors
+      if (mounted) {
+        final errorMessage = ErrorHandler.getErrorMessage(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -150,25 +176,63 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               ElevatedButton(
                 onPressed: () async {
                   final email = emailController.text.trim();
-                  if (email.isEmpty) return;
+                  if (email.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter your email address'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                    return;
+                  }
 
                   Navigator.pop(context);
+
                   try {
                     await ref
                         .read(authProvider.notifier)
                         .requestPasswordReset(email);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Reset link sent to your email"),
+                        SnackBar(
+                          content: const Text(
+                            "Password reset link sent! Please check your email.",
+                          ),
+                          backgroundColor: Colors.green.shade600,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          duration: const Duration(seconds: 5),
+                        ),
+                      );
+                    }
+                  } on AuthException catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(e.userFriendlyMessage),
+                          backgroundColor: Colors.red.shade600,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       );
                     }
                   } catch (e) {
                     if (mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                      final errorMessage = ErrorHandler.getErrorMessage(e);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(errorMessage),
+                          backgroundColor: Colors.red.shade600,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
                     }
                   }
                 },
