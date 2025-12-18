@@ -39,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withAlpha(13),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -67,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user.displayName ?? 'User',
+                          user.displayName,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -210,7 +210,7 @@ class _SettingsSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withAlpha(13),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

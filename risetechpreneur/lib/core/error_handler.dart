@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 /// Custom exception class for authentication errors
 class AuthException implements Exception {
@@ -29,12 +30,8 @@ class NetworkException extends AuthException {
 
 /// Validation exception
 class ValidationException extends AuthException {
-  ValidationException({required String message})
-    : super(
-        message: message,
-        userFriendlyMessage: message,
-        code: 'VALIDATION_ERROR',
-      );
+  ValidationException({required super.message})
+    : super(userFriendlyMessage: message, code: 'VALIDATION_ERROR');
 }
 
 /// Server error exception
@@ -175,9 +172,9 @@ class ErrorHandler {
   static void logError(dynamic error, StackTrace? stackTrace) {
     // In production, you might want to send this to a crash reporting service
     // like Sentry, Crashlytics, etc.
-    print('ERROR: $error');
+    debugPrint('ERROR: $error');
     if (stackTrace != null) {
-      print('STACK TRACE: $stackTrace');
+      debugPrint('STACK TRACE: $stackTrace');
     }
   }
 

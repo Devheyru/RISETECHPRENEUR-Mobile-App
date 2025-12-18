@@ -77,7 +77,7 @@ class CourseCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -126,7 +126,7 @@ class CourseCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryBlue.withOpacity(0.1),
+                          color: AppColors.primaryBlue.withAlpha(26),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -229,10 +229,8 @@ class StatItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(
-              0.2,
-            ), // Light background for contrast
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.white.withAlpha(51), // Light background for contrast
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
           ),
           child: Icon(icon, color: AppColors.primaryBlue, size: 20),
         ),
@@ -272,17 +270,15 @@ class CategoryItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5),
-        ],
+        border: Border.all(color: Colors.grey.withAlpha(26)),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 5)],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.background,
               shape: BoxShape.circle,
             ),

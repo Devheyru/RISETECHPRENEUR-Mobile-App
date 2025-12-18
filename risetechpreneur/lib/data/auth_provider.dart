@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -138,18 +138,81 @@ class AuthState extends StateNotifier<AppUser?> {
         throw ServerException(message: 'Server error: ${response.statusCode}');
       } else {
         // Try to parse error message from response
+        debugPrint('Login failed with status: ${response.statusCode}');
+        debugPrint('Response body: ${response.body}');
+
         try {
           final error = jsonDecode(response.body);
-          final errorMessage = error['message'] ?? 'Login failed';
+          debugPrint('Parsed error: $error');
+
+          final errorMessage =
+              error['message'] ??
+              error['error'] ??
+              error['errors'] ??
+              'Login failed';
+
+          // Check for specific error patterns in the server response
+          String userFriendlyMessage;
+          String errorCode;
+
+          final lowerMessage = errorMessage.toString().toLowerCase();
+          debugPrint('Lower message: $lowerMessage');
+
+          if (lowerMessage.contains('credential') ||
+              lowerMessage.contains('password') &&
+                  lowerMessage.contains('incorrect') ||
+              lowerMessage.contains('invalid') &&
+                  (lowerMessage.contains('email') ||
+                      lowerMessage.contains('password'))) {
+            userFriendlyMessage =
+                'Invalid email or password. Please check and try again.';
+            errorCode = 'INVALID_CREDENTIALS';
+          } else if (lowerMessage.contains('not found') ||
+              lowerMessage.contains('no user')) {
+            userFriendlyMessage =
+                'No account found with this email. Please sign up first.';
+            errorCode = 'USER_NOT_FOUND';
+          } else if (lowerMessage.contains('email') &&
+              lowerMessage.contains('verified')) {
+            userFriendlyMessage =
+                'Please verify your email address before signing in.';
+            errorCode = 'EMAIL_NOT_VERIFIED';
+          } else if (lowerMessage.contains('account') &&
+              lowerMessage.contains('suspended')) {
+            userFriendlyMessage =
+                'Your account has been suspended. Please contact support.';
+            errorCode = 'ACCOUNT_SUSPENDED';
+          } else {
+            // Use server message if it's short and readable
+            userFriendlyMessage =
+                errorMessage.length < 100 && !errorMessage.contains('Exception')
+                    ? errorMessage.toString()
+                    : 'Login failed. Please try again.';
+            errorCode = 'LOGIN_FAILED';
+          }
+
+          debugPrint('User friendly message: $userFriendlyMessage');
+
           throw AuthException(
-            message: errorMessage,
-            userFriendlyMessage:
-                errorMessage.length < 100
-                    ? errorMessage
-                    : 'Login failed. Please try again.',
-            code: 'LOGIN_FAILED',
+            message: errorMessage.toString(),
+            userFriendlyMessage: userFriendlyMessage,
+            code: errorCode,
           );
-        } catch (_) {
+        } catch (e) {
+          debugPrint('Error parsing response: $e');
+          if (e is AuthException) rethrow;
+
+          // If we can't parse JSON, use the raw response body
+          final rawBody = response.body;
+          if (rawBody.isNotEmpty && rawBody.length < 200) {
+            throw AuthException(
+              message:
+                  'Login failed with status ${response.statusCode}: $rawBody',
+              userFriendlyMessage: rawBody,
+              code: 'LOGIN_FAILED',
+            );
+          }
+
           throw AuthException(
             message: 'Login failed with status ${response.statusCode}',
             userFriendlyMessage: 'Login failed. Please try again.',
@@ -260,25 +323,74 @@ class AuthState extends StateNotifier<AppUser?> {
         // Conflict or validation error
         try {
           final error = jsonDecode(response.body);
-          final errorMessage = error['message'] ?? 'Registration failed';
+          final errorMessage =
+              error['message'] ?? error['error'] ?? 'Registration failed';
+          final lowerMessage = errorMessage.toString().toLowerCase();
 
-          if (errorMessage.toLowerCase().contains('email') &&
-              errorMessage.toLowerCase().contains('exists')) {
-            throw AuthException(
-              message: errorMessage,
-              userFriendlyMessage:
-                  'An account with this email already exists. Please sign in instead.',
-              code: 'EMAIL_EXISTS',
-            );
+          // Check for specific error patterns
+          String userFriendlyMessage;
+          String errorCode;
+
+          if (lowerMessage.contains('email') &&
+              (lowerMessage.contains('exists') ||
+                  lowerMessage.contains('taken') ||
+                  lowerMessage.contains('already'))) {
+            userFriendlyMessage =
+                'An account with this email already exists. Please sign in instead.';
+            errorCode = 'EMAIL_EXISTS';
+          } else if (lowerMessage.contains('phone') &&
+              (lowerMessage.contains('exists') ||
+                  lowerMessage.contains('taken') ||
+                  lowerMessage.contains('already'))) {
+            userFriendlyMessage =
+                'This phone number is already registered. Please use a different number.';
+            errorCode = 'PHONE_EXISTS';
+          } else if (lowerMessage.contains('email') &&
+              lowerMessage.contains('invalid')) {
+            userFriendlyMessage = 'Please enter a valid email address.';
+            errorCode = 'INVALID_EMAIL';
+          } else if (lowerMessage.contains('password') &&
+              (lowerMessage.contains('short') ||
+                  lowerMessage.contains('weak') ||
+                  lowerMessage.contains('length'))) {
+            userFriendlyMessage =
+                'Password is too weak. Please use at least 6 characters.';
+            errorCode = 'WEAK_PASSWORD';
+          } else if (lowerMessage.contains('phone') &&
+              lowerMessage.contains('invalid')) {
+            userFriendlyMessage = 'Please enter a valid phone number.';
+            errorCode = 'INVALID_PHONE';
+          } else if (lowerMessage.contains('validation') ||
+              lowerMessage.contains('required')) {
+            // Try to extract field-specific validation errors
+            if (error['errors'] != null && error['errors'] is Map) {
+              final errors = error['errors'] as Map;
+              final firstError = errors.values.first;
+              userFriendlyMessage =
+                  firstError is List && firstError.isNotEmpty
+                      ? firstError[0].toString()
+                      : errorMessage;
+            } else {
+              userFriendlyMessage =
+                  errorMessage.length < 100 &&
+                          !errorMessage.contains('Exception')
+                      ? errorMessage
+                      : 'Please check your information and try again.';
+            }
+            errorCode = 'VALIDATION_ERROR';
+          } else {
+            // Use server message if it's readable
+            userFriendlyMessage =
+                errorMessage.length < 100 && !errorMessage.contains('Exception')
+                    ? errorMessage
+                    : 'Registration failed. Please check your information.';
+            errorCode = 'VALIDATION_ERROR';
           }
 
           throw AuthException(
             message: errorMessage,
-            userFriendlyMessage:
-                errorMessage.length < 100
-                    ? errorMessage
-                    : 'Registration failed. Please check your information.',
-            code: 'VALIDATION_ERROR',
+            userFriendlyMessage: userFriendlyMessage,
+            code: errorCode,
           );
         } catch (e) {
           if (e is AuthException) rethrow;
@@ -295,11 +407,12 @@ class AuthState extends StateNotifier<AppUser?> {
         // Try to parse error message from response
         try {
           final error = jsonDecode(response.body);
-          final errorMessage = error['message'] ?? 'Registration failed';
+          final errorMessage =
+              error['message'] ?? error['error'] ?? 'Registration failed';
           throw AuthException(
             message: errorMessage,
             userFriendlyMessage:
-                errorMessage.length < 100
+                errorMessage.length < 100 && !errorMessage.contains('Exception')
                     ? errorMessage
                     : 'Registration failed. Please try again.',
             code: 'REGISTRATION_FAILED',
@@ -343,7 +456,7 @@ class AuthState extends StateNotifier<AppUser?> {
           },
         );
       } catch (e) {
-        print("Logout error: $e");
+        ErrorHandler.logError(e, StackTrace.current);
       }
     }
 
@@ -352,28 +465,91 @@ class AuthState extends StateNotifier<AppUser?> {
   }
 
   /// Request Password Reset
+  ///
+  /// Sends a password reset email to the user. The email contains a web link
+  /// where the user can reset their password. After resetting on the web,
+  /// the user should return to the app to sign in with their new password.
   Future<void> requestPasswordReset(String email) async {
     final url = Uri.parse('$baseUrl/password/reset/request');
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({"email": email}),
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({"email": email}),
+          )
+          .timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              throw NetworkException(message: 'Request timeout');
+            },
+          );
 
-      if (response.statusCode != 200) {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to request password reset');
+      if (response.statusCode == 200) {
+        return; // Success
+      } else if (response.statusCode == 404) {
+        throw AuthException(
+          message: 'User not found',
+          userFriendlyMessage: 'No account found with this email address.',
+          code: 'USER_NOT_FOUND',
+        );
+      } else if (response.statusCode == 429) {
+        throw AuthException(
+          message: 'Too many requests',
+          userFriendlyMessage:
+              'Too many reset attempts. Please wait a few minutes and try again.',
+          code: 'RATE_LIMITED',
+        );
+      } else if (response.statusCode >= 500) {
+        throw ServerException(message: 'Server error: ${response.statusCode}');
+      } else {
+        try {
+          final error = jsonDecode(response.body);
+          final errorMessage =
+              error['message'] ??
+              error['error'] ??
+              'Failed to request password reset';
+          throw AuthException(
+            message: errorMessage,
+            userFriendlyMessage:
+                errorMessage.length < 100 && !errorMessage.contains('Exception')
+                    ? errorMessage
+                    : 'Failed to send reset email. Please try again.',
+            code: 'RESET_REQUEST_FAILED',
+          );
+        } catch (e) {
+          if (e is AuthException) rethrow;
+          throw AuthException(
+            message: 'Failed to request password reset',
+            userFriendlyMessage:
+                'Failed to send reset email. Please try again.',
+            code: 'RESET_REQUEST_FAILED',
+          );
+        }
       }
+    } on SocketException {
+      throw NetworkException();
+    } on NetworkException {
+      rethrow;
+    } on AuthException {
+      rethrow;
     } catch (e) {
-      throw Exception('Failed to request password reset: $e');
+      ErrorHandler.logError(e, StackTrace.current);
+      throw AuthException(
+        message: 'Failed to request password reset: $e',
+        userFriendlyMessage: ErrorHandler.getErrorMessage(e),
+        code: 'UNKNOWN_ERROR',
+      );
     }
   }
 
   /// Reset Password
+  /// 
+  /// Completes the password reset flow using the token received via deep link.
+  /// After successful reset, the user should be navigated to the login screen.
   Future<void> resetPassword({
     required String email,
     required String password,
@@ -382,26 +558,113 @@ class AuthState extends StateNotifier<AppUser?> {
   }) async {
     final url = Uri.parse('$baseUrl/password/reset');
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-          "password_confirmation": confirmPassword,
-          "token": token,
-        }),
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({
+              "email": email,
+              "password": password,
+              "password_confirmation": confirmPassword,
+              "token": token,
+            }),
+          )
+          .timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              throw NetworkException(message: 'Request timeout');
+            },
+          );
 
-      if (response.statusCode != 200) {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to reset password');
+      if (response.statusCode == 200) {
+        return; // Success
+      } else if (response.statusCode == 400 || response.statusCode == 422) {
+        try {
+          final error = jsonDecode(response.body);
+          final errorMessage =
+              error['message'] ?? error['error'] ?? 'Failed to reset password';
+          final lowerMessage = errorMessage.toString().toLowerCase();
+
+          String userFriendlyMessage;
+          String errorCode = 'RESET_FAILED';
+
+          if (lowerMessage.contains('token') &&
+              (lowerMessage.contains('invalid') ||
+                  lowerMessage.contains('expired'))) {
+            userFriendlyMessage =
+                'This reset link has expired or is invalid. Please request a new one.';
+            errorCode = 'TOKEN_EXPIRED';
+          } else if (lowerMessage.contains('password') &&
+              lowerMessage.contains('match')) {
+            userFriendlyMessage = 'Passwords do not match. Please try again.';
+            errorCode = 'PASSWORD_MISMATCH';
+          } else if (lowerMessage.contains('password') &&
+              (lowerMessage.contains('weak') ||
+                  lowerMessage.contains('short') ||
+                  lowerMessage.contains('length'))) {
+            userFriendlyMessage =
+                'Password is too weak. Please use at least 6 characters.';
+            errorCode = 'WEAK_PASSWORD';
+          } else {
+            userFriendlyMessage =
+                errorMessage.length < 100 && !errorMessage.contains('Exception')
+                    ? errorMessage
+                    : 'Failed to reset password. Please try again.';
+          }
+
+          throw AuthException(
+            message: errorMessage,
+            userFriendlyMessage: userFriendlyMessage,
+            code: errorCode,
+          );
+        } catch (e) {
+          if (e is AuthException) rethrow;
+          throw AuthException(
+            message: 'Failed to reset password',
+            userFriendlyMessage: 'Failed to reset password. Please try again.',
+            code: 'RESET_FAILED',
+          );
+        }
+      } else if (response.statusCode >= 500) {
+        throw ServerException(message: 'Server error: ${response.statusCode}');
+      } else {
+        try {
+          final error = jsonDecode(response.body);
+          final errorMessage =
+              error['message'] ?? error['error'] ?? 'Failed to reset password';
+          throw AuthException(
+            message: errorMessage,
+            userFriendlyMessage:
+                errorMessage.length < 100 && !errorMessage.contains('Exception')
+                    ? errorMessage
+                    : 'Failed to reset password. Please try again.',
+            code: 'RESET_FAILED',
+          );
+        } catch (e) {
+          if (e is AuthException) rethrow;
+          throw AuthException(
+            message: 'Failed to reset password',
+            userFriendlyMessage: 'Failed to reset password. Please try again.',
+            code: 'RESET_FAILED',
+          );
+        }
       }
+    } on SocketException {
+      throw NetworkException();
+    } on NetworkException {
+      rethrow;
+    } on AuthException {
+      rethrow;
     } catch (e) {
-      throw Exception('Failed to reset password: $e');
+      ErrorHandler.logError(e, StackTrace.current);
+      throw AuthException(
+        message: 'Failed to reset password: $e',
+        userFriendlyMessage: ErrorHandler.getErrorMessage(e),
+        code: 'UNKNOWN_ERROR',
+      );
     }
   }
 

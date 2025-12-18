@@ -36,4 +36,3 @@ class BlogScreen extends ConsumerWidget {
     );
   }
 }
-
