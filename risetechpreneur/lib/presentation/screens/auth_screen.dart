@@ -210,9 +210,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: emailSent
-                            ? Colors.green.withOpacity(0.1)
-                            : AppColors.primaryBlue.withOpacity(0.1),
+                        color:
+                            emailSent
+                                ? Colors.green.withValues(alpha: 0.1)
+                                : AppColors.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(
@@ -239,7 +240,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                       emailSent
                           ? "We've sent a password reset link to your email. Please check your inbox and follow the link to reset your password.\n\nAfter resetting your password on the web page, return here to sign in."
                           : "Enter your email address and we'll send you a link to reset your password.",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textGrey,
                         height: 1.5,
@@ -267,7 +268,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade300),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -297,49 +300,60 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                         width: double.infinity,
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : () async {
-                                  if (!formKey.currentState!.validate()) return;
-
-                                  setSheetState(() => isLoading = true);
-
-                                  try {
-                                    await ref
-                                        .read(authProvider.notifier)
-                                        .requestPasswordReset(
-                                          emailController.text.trim(),
-                                        );
-                                    setSheetState(() {
-                                      emailSent = true;
-                                      isLoading = false;
-                                    });
-                                  } on AuthException catch (e) {
-                                    setSheetState(() => isLoading = false);
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(e.userFriendlyMessage),
-                                          backgroundColor: Colors.red.shade600,
-                                          behavior: SnackBarBehavior.floating,
-                                        ),
-                                      );
+                          onPressed:
+                              isLoading
+                                  ? null
+                                  : () async {
+                                    if (!formKey.currentState!.validate()) {
+                                      return;
                                     }
-                                  } catch (e) {
-                                    setSheetState(() => isLoading = false);
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            ErrorHandler.getErrorMessage(e),
+
+                                    setSheetState(() => isLoading = true);
+
+                                    try {
+                                      await ref
+                                          .read(authProvider.notifier)
+                                          .requestPasswordReset(
+                                            emailController.text.trim(),
+                                          );
+                                      setSheetState(() {
+                                        emailSent = true;
+                                        isLoading = false;
+                                      });
+                                    } on AuthException catch (e) {
+                                      setSheetState(() => isLoading = false);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              e.userFriendlyMessage,
+                                            ),
+                                            backgroundColor:
+                                                Colors.red.shade600,
+                                            behavior: SnackBarBehavior.floating,
                                           ),
-                                          backgroundColor: Colors.red.shade600,
-                                          behavior: SnackBarBehavior.floating,
-                                        ),
-                                      );
+                                        );
+                                      }
+                                    } catch (e) {
+                                      setSheetState(() => isLoading = false);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              ErrorHandler.getErrorMessage(e),
+                                            ),
+                                            backgroundColor:
+                                                Colors.red.shade600,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
                                     }
-                                  }
-                                },
+                                  },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryBlue,
                             foregroundColor: Colors.white,
@@ -348,22 +362,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                             ),
                             elevation: 0,
                           ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 22,
-                                  width: 22,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
+                          child:
+                              isLoading
+                                  ? const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                  : const Text(
+                                    "Send Reset Link",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                )
-                              : const Text(
-                                  "Send Reset Link",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
                         ),
                       ),
                     ] else ...[
@@ -496,7 +511,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryBlue.withOpacity(0.3),
+                          color: AppColors.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -629,20 +644,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                    child:
+                        _isLoading
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                            : Text(
+                              _tabController.index == 0
+                                  ? "Log In"
+                                  : "Create Account",
                             ),
-                          )
-                        : Text(
-                            _tabController.index == 0
-                                ? "Log In"
-                                : "Create Account",
-                          ),
                   ),
                 ),
               ],
@@ -673,15 +689,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: AppColors.textGrey),
-        suffixIcon: isPassword
-            ? IconButton(
-                icon: Icon(
-                  isVisible ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.textGrey,
-                ),
-                onPressed: onVisibilityChanged,
-              )
-            : null,
+        suffixIcon:
+            isPassword
+                ? IconButton(
+                  icon: Icon(
+                    isVisible ? Icons.visibility : Icons.visibility_off,
+                    color: AppColors.textGrey,
+                  ),
+                  onPressed: onVisibilityChanged,
+                )
+                : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade200),

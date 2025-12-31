@@ -69,6 +69,11 @@ class AuthState extends StateNotifier<AppUser?> {
   /// Sign in with Email and Password
   Future<void> signIn(String email, String password) async {
     final url = Uri.parse('$baseUrl/login-user');
+    final trimmedEmail = email.trim().toLowerCase();
+
+    debugPrint('=== LOGIN REQUEST ===');
+    debugPrint('URL: $url');
+    debugPrint('Email: $trimmedEmail');
 
     try {
       final response = await http
@@ -78,7 +83,7 @@ class AuthState extends StateNotifier<AppUser?> {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: jsonEncode({"email": email, "password": password}),
+            body: jsonEncode({"email": trimmedEmail, "password": password}),
           )
           .timeout(
             const Duration(seconds: 15),
@@ -86,6 +91,10 @@ class AuthState extends StateNotifier<AppUser?> {
               throw NetworkException(message: 'Request timeout');
             },
           );
+
+      debugPrint('=== LOGIN RESPONSE ===');
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -102,7 +111,7 @@ class AuthState extends StateNotifier<AppUser?> {
 
         // Store authentication data
         await _storage.write(key: 'auth_token', value: token);
-        await _storage.write(key: 'auth_email', value: email);
+        await _storage.write(key: 'auth_email', value: trimmedEmail);
 
         if (userData != null) {
           final user = AppUser.fromJson(userData, token: token);
@@ -118,7 +127,7 @@ class AuthState extends StateNotifier<AppUser?> {
 
           state = user;
         } else {
-          state = AppUser(id: '', email: email, token: token);
+          state = AppUser(id: '', email: trimmedEmail, token: token);
         }
       } else if (response.statusCode == 401) {
         throw AuthException(
@@ -248,15 +257,19 @@ class AuthState extends StateNotifier<AppUser?> {
     final url = Uri.parse('$baseUrl/create-user');
 
     final body = {
-      "first_name": firstName,
-      "last_name": lastName,
-      "phone": phone,
-      "email": email,
+      "first_name": firstName.trim(),
+      "last_name": lastName.trim(),
+      "phone": phone.trim(),
+      "email": email.trim().toLowerCase(),
       "password": password,
       "password_confirmation": confirmPassword,
       "terms": true,
       "role": "normal",
     };
+
+    debugPrint('=== SIGNUP REQUEST ===');
+    debugPrint('URL: $url');
+    debugPrint('Body: ${jsonEncode(body)}');
 
     try {
       final response = await http
@@ -264,8 +277,7 @@ class AuthState extends StateNotifier<AppUser?> {
             url,
             headers: {
               'Content-Type': 'application/json',
-              'Accept':
-                  'application/json', // Force server to return JSON, not HTML
+              'Accept': 'application/json',
             },
             body: jsonEncode(body),
           )
@@ -276,22 +288,25 @@ class AuthState extends StateNotifier<AppUser?> {
             },
           );
 
+      debugPrint('=== SIGNUP RESPONSE ===');
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Response Body: ${response.body}');
+      debugPrint('Response Headers: ${response.headers}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        final token = data['token'];
+        final token = data['token']; // May be null - some APIs don't return token on signup
         final userData = data['user'];
 
-        if (token == null) {
-          throw AuthException(
-            message: 'Token not found in response',
-            userFriendlyMessage: 'Registration failed. Please try again.',
-            code: 'NO_TOKEN',
-          );
-        }
+        debugPrint('Registration successful!');
+        debugPrint('Token present: ${token != null}');
+        debugPrint('User data present: ${userData != null}');
 
-        // Store authentication data
-        await _storage.write(key: 'auth_token', value: token);
-        await _storage.write(key: 'auth_email', value: email);
+        // Store authentication data if token is provided
+        if (token != null) {
+          await _storage.write(key: 'auth_token', value: token);
+        }
+        await _storage.write(key: 'auth_email', value: email.trim().toLowerCase());
 
         if (userData != null) {
           final user = AppUser.fromJson(userData, token: token);
@@ -308,16 +323,22 @@ class AuthState extends StateNotifier<AppUser?> {
           state = user;
         } else {
           // Fallback if user data not returned
-          await _storage.write(key: 'auth_first_name', value: firstName);
-          await _storage.write(key: 'auth_last_name', value: lastName);
+          await _storage.write(key: 'auth_first_name', value: firstName.trim());
+          await _storage.write(key: 'auth_last_name', value: lastName.trim());
 
           state = AppUser(
             id: '',
-            email: email,
-            firstName: firstName,
-            lastName: lastName,
+            email: email.trim().toLowerCase(),
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
             token: token,
           );
+        }
+        
+        // If no token was returned, user needs to sign in after registration
+        // This is common for APIs that require email verification
+        if (token == null) {
+          debugPrint('No token returned - user may need to sign in separately');
         }
       } else if (response.statusCode == 409 || response.statusCode == 422) {
         // Conflict or validation error

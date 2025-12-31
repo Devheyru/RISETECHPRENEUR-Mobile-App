@@ -374,7 +374,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Text(
             "© 2025 RiseTechPrenuer Inc. All rights reserved.",
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontSize: 12,
             ),
           ),

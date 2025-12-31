@@ -6,10 +6,10 @@ import 'package:risetechpreneur/data/auth_provider.dart';
 import 'auth_screen.dart';
 
 /// Screen for resetting password via deep link.
-/// 
+///
 /// This screen is opened when the user taps the password reset link in their email.
 /// The link contains a token and email as query parameters.
-/// 
+///
 /// Flow:
 /// 1. User requests password reset from AuthScreen
 /// 2. Backend sends email with deep link: risetechpreneur://reset-password?token=xxx&email=xxx
@@ -52,7 +52,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authProvider.notifier).resetPassword(
+      await ref
+          .read(authProvider.notifier)
+          .resetPassword(
             email: widget.email,
             password: _passwordController.text,
             confirmPassword: _confirmPasswordController.text,
@@ -61,7 +63,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
       if (mounted) {
         setState(() => _resetSuccess = true);
-        
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -85,7 +87,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       }
     } on AuthException catch (e) {
       if (mounted) {
-        _showError(e.userFriendlyMessage, isTokenExpired: e.code == 'TOKEN_EXPIRED');
+        _showError(
+          e.userFriendlyMessage,
+          isTokenExpired: e.code == 'TOKEN_EXPIRED',
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -103,17 +108,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         content: Text(message),
         backgroundColor: Colors.red.shade600,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 4),
-        action: isTokenExpired
-            ? SnackBarAction(
-                label: 'Request New',
-                textColor: Colors.white,
-                onPressed: _requestNewResetLink,
-              )
-            : null,
+        action:
+            isTokenExpired
+                ? SnackBarAction(
+                  label: 'Request New',
+                  textColor: Colors.white,
+                  onPressed: _requestNewResetLink,
+                )
+                : null,
       ),
     );
   }
@@ -170,7 +174,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+          onPressed:
+              () => Navigator.of(context).popUntil((route) => route.isFirst),
         ),
       ),
       body: SafeArea(
@@ -186,7 +191,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -196,7 +201,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 Text(
                   _resetSuccess ? "Password Reset!" : "Create New Password",
                   style: const TextStyle(
@@ -210,7 +215,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   _resetSuccess
                       ? "Your password has been reset successfully. Redirecting to login..."
                       : "Enter your new password for:",
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textGrey,
                     fontSize: 16,
                   ),
@@ -237,7 +242,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                     decoration: InputDecoration(
                       labelText: "New Password",
                       hintText: "Enter at least 6 characters",
-                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textGrey),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: AppColors.textGrey,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _isPasswordVisible
@@ -245,9 +253,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               : Icons.visibility_off,
                           color: AppColors.textGrey,
                         ),
-                        onPressed: () => setState(
-                          () => _isPasswordVisible = !_isPasswordVisible,
-                        ),
+                        onPressed:
+                            () => setState(
+                              () => _isPasswordVisible = !_isPasswordVisible,
+                            ),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -258,12 +267,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primaryBlue),
+                        borderSide: const BorderSide(
+                          color: AppColors.primaryBlue,
+                        ),
                       ),
                     ),
-                    validator: (v) => (v?.length ?? 0) < 6
-                        ? "Password must be at least 6 characters"
-                        : null,
+                    validator:
+                        (v) =>
+                            (v?.length ?? 0) < 6
+                                ? "Password must be at least 6 characters"
+                                : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -275,7 +288,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                     decoration: InputDecoration(
                       labelText: "Confirm Password",
                       hintText: "Re-enter your password",
-                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textGrey),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: AppColors.textGrey,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _isConfirmPasswordVisible
@@ -283,9 +299,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               : Icons.visibility_off,
                           color: AppColors.textGrey,
                         ),
-                        onPressed: () => setState(
-                          () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
-                        ),
+                        onPressed:
+                            () => setState(
+                              () =>
+                                  _isConfirmPasswordVisible =
+                                      !_isConfirmPasswordVisible,
+                            ),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -296,12 +315,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primaryBlue),
+                        borderSide: const BorderSide(
+                          color: AppColors.primaryBlue,
+                        ),
                       ),
                     ),
-                    validator: (v) => v != _passwordController.text
-                        ? "Passwords do not match"
-                        : null,
+                    validator:
+                        (v) =>
+                            v != _passwordController.text
+                                ? "Passwords do not match"
+                                : null,
                   ),
                   const SizedBox(height: 32),
 
@@ -319,22 +342,23 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
+                      child:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                              : const Text(
+                                "Reset Password",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            )
-                          : const Text(
-                              "Reset Password",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
