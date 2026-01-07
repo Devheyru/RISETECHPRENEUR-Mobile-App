@@ -47,11 +47,22 @@ class CoursesState {
     int? total,
     bool? hasMore,
   }) {
+  CoursesState copyWith({
+    List<Course>? courses,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    bool clearError = false,
+    int? currentPage,
+    int? lastPage,
+    int? total,
+    bool? hasMore,
+  }) {
     return CoursesState(
       courses: courses ?? this.courses,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      error: error,
+      error: clearError ? null : (error ?? this.error),
       currentPage: currentPage ?? this.currentPage,
       lastPage: lastPage ?? this.lastPage,
       total: total ?? this.total,
