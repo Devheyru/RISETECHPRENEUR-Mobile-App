@@ -1,91 +1,175 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:risetechpreneur/core/constants.dart';
+import 'package:risetechpreneur/data/course_repository.dart';
 import 'models.dart';
 
-/// Riverpod providers that expose mock data for the UI.
-///
-/// These simulate API responses and can later be replaced with real
-/// repositories or remote data sources without touching the UI layer.
-final coursesProvider = Provider<List<Course>>((ref) {
-  return [
-    const Course(
-      id: '1',
-      title: 'Digital Marketing Master Class',
-      subtitle: 'Ignite Ethiopia’s Digital Future—One Brand at a Time',
-      category: 'Marketing',
-      imageUrl:
-          'https://plus.unsplash.com/premium_photo-1681841957049-37fed0a9ba55?q=80&w=1187&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      rating: 4.8,
-      duration: '10h 30m',
-      price: 89.99,
-    ),
-    const Course(
-      id: '2',
-      title: 'Flutter Development Bootcamp',
-      subtitle: '',
-      category: 'Development',
-      imageUrl:
-          'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=500&q=60',
-      rating: 4.9,
-      duration: '42h 00m',
-      price: 129.99,
-    ),
-    const Course(
-      id: '3',
-      title: 'Digital Marketing Zero to Hero',
-      subtitle: '',
-      category: 'Marketing',
-      imageUrl:
-          'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=500&q=60',
-      rating: 4.7,
-      duration: '8h 15m',
-      price: 49.99,
-    ),
-    const Course(
-      id: '4',
-      title: 'Digital Marketing Zero to Hero',
-      subtitle: '',
-      category: 'Marketing',
-      imageUrl:
-          'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=500&q=60',
-      rating: 4.7,
-      duration: '8h 15m',
-      price: 49.99,
-    ),
-    const Course(
-      id: '5',
-      title: 'UI/UX Design Masterclass',
-      subtitle: '',
-      category: 'Design',
-      imageUrl:
-          'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-4.webp',
-      rating: 4.8,
-      duration: '10h 30m',
-      price: 89.99,
-    ),
-    const Course(
-      id: '6',
-      title: 'UI/UX Design Masterclass',
-      subtitle: '',
-      category: 'Design',
-      imageUrl:
-          'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-4.webp',
-      rating: 4.8,
-      duration: '10h 30m',
-      price: 89.99,
-    ),
-    const Course(
-      id: '7',
-      title: 'UI/UX Design Masterclass',
-      subtitle: '',
-      category: 'Design',
-      imageUrl:
-          'https://rise-techpreneur.havanacademy.com/assets/img/education/courses-4.webp',
-      rating: 4.8,
-      duration: '10h 30m',
-      price: 89.99,
-    ),
-  ];
+// ============================================================================
+// COURSE PROVIDERS (API-INTEGRATED)
+// ============================================================================
+
+/// Repository provider for dependency injection
+final courseRepositoryProvider = Provider<CourseRepository>((ref) {
+  final repository = CourseRepository();
+  ref.onDispose(() => repository.dispose());
+  return repository;
 });
+
+/// State class for courses with loading and pagination
+class CoursesState {
+  final List<Course> courses;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final int currentPage;
+  final int lastPage;
+  final int total;
+  final bool hasMore;
+
+  const CoursesState({
+    this.courses = const [],
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.currentPage = 0,
+    this.lastPage = 1,
+    this.total = 0,
+    this.hasMore = true,
+  });
+
+  CoursesState copyWith({
+    List<Course>? courses,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    int? currentPage,
+    int? lastPage,
+    int? total,
+    bool? hasMore,
+  }) {
+  CoursesState copyWith({
+    List<Course>? courses,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    bool clearError = false,
+    int? currentPage,
+    int? lastPage,
+    int? total,
+    bool? hasMore,
+  }) {
+    return CoursesState(
+      courses: courses ?? this.courses,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: clearError ? null : (error ?? this.error),
+      currentPage: currentPage ?? this.currentPage,
+      lastPage: lastPage ?? this.lastPage,
+      total: total ?? this.total,
+      hasMore: hasMore ?? this.hasMore,
+    );
+  }
+
+  /// Check if initial data has been loaded
+  bool get hasData => courses.isNotEmpty || (!isLoading && error == null);
+}
+
+/// StateNotifier for managing courses state and API operations
+class CoursesNotifier extends StateNotifier<CoursesState> {
+  final CourseRepository _repository;
+
+  CoursesNotifier(this._repository) : super(const CoursesState()) {
+    // Auto-load courses on initialization
+    loadCourses();
+  }
+
+  /// Load initial courses (first page)
+  Future<void> loadCourses() async {
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final response = await _repository.getCourses(
+        page: 1,
+        perPage: defaultCoursesPerPage,
+      );
+
+      state = state.copyWith(
+        courses: response.courses,
+        isLoading: false,
+        currentPage: response.currentPage,
+        lastPage: response.lastPage,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  /// Load more courses (next page)
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || !state.hasMore || state.isLoading) return;
+
+    state = state.copyWith(isLoadingMore: true);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final response = await _repository.getCourses(
+        page: nextPage,
+        perPage: defaultCoursesPerPage,
+      );
+
+      state = state.copyWith(
+        courses: [...state.courses, ...response.courses],
+        isLoadingMore: false,
+        currentPage: response.currentPage,
+        lastPage: response.lastPage,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingMore: false,
+      );
+      // Log or emit a transient error notification
+      debugPrint('Failed to load more courses: $e');
+    }
+  }
+
+  /// Refresh courses (pull-to-refresh)
+  Future<void> refresh() async {
+    state = state.copyWith(currentPage: 0, hasMore: true, error: null);
+    await loadCourses();
+  }
+}
+
+/// Main courses state provider
+final coursesStateProvider =
+    StateNotifierProvider<CoursesNotifier, CoursesState>((ref) {
+      final repository = ref.watch(courseRepositoryProvider);
+      return CoursesNotifier(repository);
+    });
+
+/// Convenience provider to get just the courses list
+final coursesListProvider = Provider<List<Course>>((ref) {
+  return ref.watch(coursesStateProvider).courses;
+});
+
+/// Provider for checking if courses are loading
+final coursesLoadingProvider = Provider<bool>((ref) {
+  return ref.watch(coursesStateProvider).isLoading;
+});
+
+/// Provider for courses error state
+final coursesErrorProvider = Provider<String?>((ref) {
+  return ref.watch(coursesStateProvider).error;
+});
+
+// ============================================================================
+// CATEGORIES PROVIDER (MOCK DATA - TO BE REPLACED WITH API)
+// ============================================================================
 
 final categoriesProvider = Provider<List<Category>>((ref) {
   return [
@@ -139,6 +223,10 @@ final categoriesProvider = Provider<List<Category>>((ref) {
   ];
 });
 
+// ============================================================================
+// TESTIMONIALS PROVIDER (MOCK DATA)
+// ============================================================================
+
 final testimonialsProvider = Provider<List<Testimonial>>((ref) {
   return [
     const Testimonial(
@@ -169,7 +257,11 @@ final testimonialsProvider = Provider<List<Testimonial>>((ref) {
     ),
   ];
 });
-// Add this to the end of the file
+
+// ============================================================================
+// BLOGS PROVIDER (MOCK DATA)
+// ============================================================================
+
 final blogsProvider = Provider<List<BlogPost>>((ref) {
   return [
     const BlogPost(

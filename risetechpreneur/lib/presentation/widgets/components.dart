@@ -130,7 +130,7 @@ class CourseCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          course.category.toUpperCase(),
+                          course.categoryName.toUpperCase(),
                           style: const TextStyle(
                             color: AppColors.primaryBlue,
                             fontSize: 10,
@@ -138,12 +138,26 @@ class CourseCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Spacer(),
-                      StarRating(rating: course.rating, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        course.rating.toString(),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getExperienceColor(
+                            course.experience,
+                          ).withAlpha(26),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          course.experienceLevel,
+                          style: TextStyle(
+                            color: _getExperienceColor(course.experience),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -167,7 +181,7 @@ class CourseCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            course.duration,
+                            course.formattedDuration,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -205,6 +219,19 @@ class CourseCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getExperienceColor(String experience) {
+    switch (experience.toLowerCase()) {
+      case 'beginner':
+        return Colors.green;
+      case 'intermediate':
+        return Colors.orange;
+      case 'advanced':
+        return Colors.red;
+      default:
+        return AppColors.textGrey;
+    }
   }
 }
 

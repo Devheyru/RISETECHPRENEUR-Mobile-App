@@ -85,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final courses = ref.watch(coursesProvider);
+    final coursesState = ref.watch(coursesStateProvider);
     final categories = ref.watch(categoriesProvider);
     final testimonials = ref.watch(testimonialsProvider);
     final blogs = ref.watch(blogsProvider); // 1. Watch Blogs
@@ -102,8 +102,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             _buildHeroSection(context, ref),
             const SizedBox(height: 32),
 
-            // Popular Courses Section
-            PopularCoursesSection(courses: courses),
+            // Popular Courses Section (now with async state)
+            PopularCoursesSection(
+              courses: coursesState.courses,
+              isLoading: coursesState.isLoading,
+              error: coursesState.error,
+              onRetry:
+                  () => ref.read(coursesStateProvider.notifier).loadCourses(),
+            ),
             const SizedBox(height: 32),
 
             // Categories Section
