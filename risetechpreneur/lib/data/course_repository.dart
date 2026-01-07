@@ -153,6 +153,8 @@ class CourseRepository {
       }
     } on SocketException {
       throw NetworkException();
+    } on http.ClientException catch (e) {
+      throw NetworkException(message: e.message);
     } catch (e) {
       if (e is AuthException) rethrow;
       throw AuthException(
