@@ -1,6 +1,7 @@
 /// Core domain models used across the RiseTechpreneur app.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:risetechpreneur/core/constants.dart';
 
 /// Represents a single course in the RiseTechpreneur catalog.
@@ -113,6 +114,24 @@ class Course {
 
   /// Factory constructor for JSON parsing
   factory Course.fromJson(Map<String, dynamic> json) {
+    final createdAtString = json['created_at'] as String? ?? '';
+    final updatedAtString = json['updated_at'] as String? ?? '';
+
+    DateTime? parsedCreatedAt = DateTime.tryParse(createdAtString);
+    DateTime? parsedUpdatedAt = DateTime.tryParse(updatedAtString);
+
+    // Log warnings for date parsing failures to make them detectable
+    if (parsedCreatedAt == null && createdAtString.isNotEmpty) {
+      debugPrint(
+        'Warning: Failed to parse created_at date: "$createdAtString" for course ${json['id']}',
+      );
+    }
+    if (parsedUpdatedAt == null && updatedAtString.isNotEmpty) {
+      debugPrint(
+        'Warning: Failed to parse updated_at date: "$updatedAtString" for course ${json['id']}',
+      );
+    }
+
     return Course(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       userId: json['user_id']?.toString() ?? '',
@@ -128,12 +147,8 @@ class Course {
       feature: json['feature'] as String? ?? '',
       duration: json['duration']?.toString() ?? '0',
       description: json['description'] as String? ?? '',
-      createdAt:
-          DateTime.tryParse(json['created_at'] as String? ?? '') ??
-          DateTime.now(),
-      updatedAt:
-          DateTime.tryParse(json['updated_at'] as String? ?? '') ??
-          DateTime.now(),
+      createdAt: parsedCreatedAt ?? DateTime.now(),
+      updatedAt: parsedUpdatedAt ?? DateTime.now(),
     );
   }
 

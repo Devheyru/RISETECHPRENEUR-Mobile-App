@@ -17,6 +17,22 @@ class AuthException implements Exception {
   String toString() => message;
 }
 
+/// API/resource error exception (for 4xx non-auth errors like 404)
+class ApiException implements Exception {
+  final String message;
+  final String userFriendlyMessage;
+  final String? code;
+
+  ApiException({
+    required this.message,
+    required this.userFriendlyMessage,
+    this.code,
+  });
+
+  @override
+  String toString() => message;
+}
+
 /// Network-related exception
 class NetworkException extends AuthException {
   NetworkException({String? message})
@@ -50,6 +66,10 @@ class ErrorHandler {
   /// Parse HTTP errors and convert to user-friendly messages
   static String getErrorMessage(dynamic error) {
     if (error is AuthException) {
+      return error.userFriendlyMessage;
+    }
+
+    if (error is ApiException) {
       return error.userFriendlyMessage;
     }
 

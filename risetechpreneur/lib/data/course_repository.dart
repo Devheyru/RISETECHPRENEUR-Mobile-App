@@ -90,7 +90,7 @@ class CourseRepository {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return CoursesResponse.fromJson(json);
       } else if (response.statusCode == 404) {
-        throw AuthException(
+        throw ApiException(
           message: 'Courses not found',
           userFriendlyMessage: 'No courses found. Please try again later.',
           code: 'NOT_FOUND',
@@ -98,7 +98,7 @@ class CourseRepository {
       } else if (response.statusCode >= 500) {
         throw ServerException(message: 'Server error: ${response.statusCode}');
       } else {
-        throw AuthException(
+        throw ApiException(
           message: 'HTTP ${response.statusCode}: ${response.body}',
           userFriendlyMessage: 'Failed to load courses. Please try again.',
           code: 'HTTP_ERROR',
@@ -109,8 +109,10 @@ class CourseRepository {
     } on http.ClientException catch (e) {
       throw NetworkException(message: e.message);
     } catch (e) {
-      if (e is AuthException) rethrow;
-      throw AuthException(
+      if (e is ApiException || e is ServerException || e is NetworkException) {
+        rethrow;
+      }
+      throw ApiException(
         message: e.toString(),
         userFriendlyMessage: 'Something went wrong. Please try again.',
         code: 'UNKNOWN',
@@ -139,13 +141,15 @@ class CourseRepository {
         final courseData = json['data'] ?? json;
         return Course.fromJson(courseData as Map<String, dynamic>);
       } else if (response.statusCode == 404) {
-        throw AuthException(
+        throw ApiException(
           message: 'Course not found',
           userFriendlyMessage: 'Course not found.',
           code: 'NOT_FOUND',
         );
+      } else if (response.statusCode >= 500) {
+        throw ServerException(message: 'Server error: ${response.statusCode}');
       } else {
-        throw AuthException(
+        throw ApiException(
           message: 'HTTP ${response.statusCode}',
           userFriendlyMessage: 'Failed to load course details.',
           code: 'HTTP_ERROR',
@@ -156,8 +160,10 @@ class CourseRepository {
     } on http.ClientException catch (e) {
       throw NetworkException(message: e.message);
     } catch (e) {
-      if (e is AuthException) rethrow;
-      throw AuthException(
+      if (e is ApiException || e is ServerException || e is NetworkException) {
+        rethrow;
+      }
+      throw ApiException(
         message: e.toString(),
         userFriendlyMessage: 'Something went wrong. Please try again.',
         code: 'UNKNOWN',
