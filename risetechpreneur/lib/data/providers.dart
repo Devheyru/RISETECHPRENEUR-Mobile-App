@@ -132,8 +132,9 @@ class CoursesNotifier extends StateNotifier<CoursesState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
-        // Don't set error for load more failures, just stop loading
       );
+      // Log or emit a transient error notification
+      debugPrint('Failed to load more courses: $e');
     }
   }
 
