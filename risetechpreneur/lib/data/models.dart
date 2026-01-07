@@ -110,7 +110,7 @@ class Course {
   /// Factory constructor for JSON parsing
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       userId: json['user_id']?.toString() ?? '',
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
