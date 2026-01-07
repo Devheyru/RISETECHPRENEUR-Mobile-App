@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:risetechpreneur/core/constants.dart';
@@ -47,22 +48,11 @@ class CoursesState {
     int? total,
     bool? hasMore,
   }) {
-  CoursesState copyWith({
-    List<Course>? courses,
-    bool? isLoading,
-    bool? isLoadingMore,
-    String? error,
-    bool clearError = false,
-    int? currentPage,
-    int? lastPage,
-    int? total,
-    bool? hasMore,
-  }) {
     return CoursesState(
       courses: courses ?? this.courses,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      error: clearError ? null : (error ?? this.error),
+      error: error,
       currentPage: currentPage ?? this.currentPage,
       lastPage: lastPage ?? this.lastPage,
       total: total ?? this.total,
@@ -132,8 +122,8 @@ class CoursesNotifier extends StateNotifier<CoursesState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
+        // Don't set error for load more failures, just stop loading
       );
-      // Log or emit a transient error notification
       debugPrint('Failed to load more courses: $e');
     }
   }

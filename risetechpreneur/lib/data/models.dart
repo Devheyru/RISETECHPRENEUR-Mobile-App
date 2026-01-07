@@ -43,14 +43,15 @@ class Course {
   });
 
   /// Full thumbnail URL with base URL prefix
-  String get imageUrl => thumbnail.isNotEmpty 
-      ? '$assetsBaseUrl/$thumbnail' 
-      : ''; // or a default placeholder URL
+  String get imageUrl =>
+      thumbnail.isNotEmpty
+          ? '$assetsBaseUrl/$thumbnail'
+          : ''; // or a default placeholder URL
 
   /// Full video URL with base URL prefix (if available)
   String? get videoUrl =>
-      (overviewVideo != null && overviewVideo!.isNotEmpty) 
-          ? '$assetsBaseUrl/$overviewVideo' 
+      (overviewVideo != null && overviewVideo!.isNotEmpty)
+          ? '$assetsBaseUrl/$overviewVideo'
           : null;
 
   /// Check if course has a video preview
