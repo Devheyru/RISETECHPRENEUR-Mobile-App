@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
+import 'package:risetechpreneur/core/constants.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
 import 'package:risetechpreneur/data/models.dart';
 import 'package:risetechpreneur/presentation/screens/auth_screen.dart';
@@ -64,9 +65,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   }
 
   Future<void> _launchCourseUrl() async {
-    final url = Uri.parse(
-      'https://rise-techpreneur.havanacademy.com/courses/${widget.course.slug}',
-    );
+    final url = Uri.parse('$assetsBaseUrl/courses/${widget.course.slug}');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
