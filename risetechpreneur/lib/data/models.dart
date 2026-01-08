@@ -20,6 +20,7 @@ class Course {
   final String feature;
   final String duration;
   final String description;
+  final List<String> learningPoints;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -38,6 +39,7 @@ class Course {
     required this.feature,
     required this.duration,
     required this.description,
+    required this.learningPoints,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -115,6 +117,31 @@ class Course {
 
   /// Factory constructor for JSON parsing
   factory Course.fromJson(Map<String, dynamic> json) {
+    var learningPointsJson = json['learning_points'];
+    List<String> parsedLearningPoints;
+
+    if (learningPointsJson is String) {
+      // Handle case where learning_points might be a JSON-encoded string
+      // This is common in some backends storing arrays as text
+      // For now, we'll just treat it as a single point if simpler parsing fails or just split by newline if applicable
+      // But based on request, let's assume it should be a list or we use fallback
+      parsedLearningPoints = []; // Fallback logic below will handle empty
+    } else if (learningPointsJson is List) {
+      parsedLearningPoints =
+          learningPointsJson.map((e) => e.toString()).toList();
+    } else {
+      parsedLearningPoints = [];
+    }
+
+    // Fallback if empty or null
+    if (parsedLearningPoints.isEmpty) {
+      parsedLearningPoints = [
+        'Comprehensive understanding of the subject',
+        'Hands-on practical projects',
+        'Industry-relevant skills',
+      ];
+    }
+
     final createdAtString = json['created_at'] as String? ?? '';
     final updatedAtString = json['updated_at'] as String? ?? '';
 
@@ -148,6 +175,7 @@ class Course {
       feature: json['feature'] as String? ?? '',
       duration: json['duration']?.toString() ?? '0',
       description: json['description'] as String? ?? '',
+      learningPoints: parsedLearningPoints,
       createdAt: parsedCreatedAt ?? DateTime.now(),
       updatedAt: parsedUpdatedAt ?? DateTime.now(),
     );

@@ -519,14 +519,7 @@ class _OverviewTab extends StatelessWidget {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        _LearningPoint(
-          text: 'Comprehensive understanding of ${course.categoryName}',
-        ),
-        const _LearningPoint(text: 'Hands-on practical projects and exercises'),
-        const _LearningPoint(
-          text: 'Industry-relevant skills and best practices',
-        ),
-        const _LearningPoint(text: 'Certificate upon completion'),
+        ...course.learningPoints.map((point) => _LearningPoint(text: point)),
         const SizedBox(height: 32),
 
         // Requirements section
