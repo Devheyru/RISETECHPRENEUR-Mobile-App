@@ -11,4 +11,4 @@ const String apiBaseUrl = 'https://rise-techpreneur.havanacademy.com/api';
 const String assetsBaseUrl = 'https://rise-techpreneur.havanacademy.com';
 
 /// Default number of courses to fetch per page
-const int defaultCoursesPerPage = 5;
+const int defaultCoursesPerPage = 6;
