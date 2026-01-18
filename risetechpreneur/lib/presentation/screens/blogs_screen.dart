@@ -204,8 +204,8 @@ class _BlogsScreenState extends ConsumerState<BlogsScreen> {
             );
           }
 
-          final blogIndex = index;
-          if (blogIndex >= filteredBlogs.length) {
+          final listIndex = index - 1;
+          if (listIndex >= filteredBlogs.length - 1) {
             // Load more indicator
             if (state.hasMore && !state.isLoadingMore) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -224,8 +224,9 @@ class _BlogsScreenState extends ConsumerState<BlogsScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: _BlogListCard(
-              blog: filteredBlogs[blogIndex],
-              onTap: () => _navigateToBlog(context, filteredBlogs[blogIndex]),
+              blog: filteredBlogs[listIndex + 1],
+              onTap: () =>
+                  _navigateToBlog(context, filteredBlogs[listIndex + 1]),
             ),
           );
         }, childCount: filteredBlogs.length + (state.hasMore ? 1 : 0)),
