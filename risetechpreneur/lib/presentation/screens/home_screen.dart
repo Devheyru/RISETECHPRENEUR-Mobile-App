@@ -346,20 +346,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              StatItem(
-                label: "Courses",
-                value: "1.2k+",
-                icon: Icons.play_circle_outline,
+              Expanded(
+                child: StatItem(
+                  label: "Courses",
+                  value: "1.2k+",
+                  icon: Icons.play_circle_outline,
+                ),
               ),
-              StatItem(
-                label: "Students",
-                value: "50k+",
-                icon: Icons.people_outline,
+              Expanded(
+                child: StatItem(
+                  label: "Students",
+                  value: "50k+",
+                  icon: Icons.people_outline,
+                ),
               ),
-              StatItem(
-                label: "Success ",
-                value: "98%",
-                icon: Icons.school_outlined,
+              Expanded(
+                child: StatItem(
+                  label: "Success ",
+                  value: "98%",
+                  icon: Icons.school_outlined,
+                ),
               ),
             ],
           ),

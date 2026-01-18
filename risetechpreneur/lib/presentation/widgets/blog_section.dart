@@ -54,6 +54,57 @@ class BlogSection extends StatelessWidget {
       );
     }
 
+    // Show error state
+    if (error != null && blogs.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(
+            title: "Latest Blog News",
+            subtitle:
+                "Explore our blog for expert advice\n and actionable strategies.",
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.red.shade100),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 32,
+                    color: Colors.red.shade400,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    error ?? 'Failed to load blogs',
+                    style: TextStyle(color: Colors.red.shade700),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (onViewAll != null) ...[
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: onViewAll,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: const Text('Retry'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red.shade700,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     // Show empty state
     if (blogs.isEmpty) {
       return const SizedBox.shrink();

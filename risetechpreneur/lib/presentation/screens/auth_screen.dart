@@ -478,192 +478,222 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Welcome to\nRiseTech",
-                  style: Theme.of(context).textTheme.displaySmall,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 48, // adjust for padding
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  "Unlock your potential today.",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 32),
-
-                // Tabs
-                Container(
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicator: BoxDecoration(
-                      color: AppColors.primaryBlue,
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryBlue.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: AppColors.textGrey,
-                    labelStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                    tabs: const [Tab(text: "Sign In"), Tab(text: "Register")],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Animated Form Fields
-                AnimatedBuilder(
-                  animation: _tabController,
-                  builder: (context, _) {
-                    return Column(
+                child: IntrinsicHeight(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Name Fields (Only for Register)
-                        if (_tabController.index == 1) ...[
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildTextField(
-                                  controller: _firstNameController,
-                                  label: "First Name",
-                                  icon: Icons.person_outline,
-                                  validator:
-                                      (v) => v!.isEmpty ? "Required" : null,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: _buildTextField(
-                                  controller: _lastNameController,
-                                  label: "Last Name",
-                                  icon: Icons.person_outline,
-                                  validator:
-                                      (v) => v!.isEmpty ? "Required" : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                            controller: _phoneController,
-                            label: "Phone Number",
-                            icon: Icons.phone_outlined,
-                            validator: _validatePhone,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-
-                        _buildTextField(
-                          controller: _emailController,
-                          label: "Email Address",
-                          icon: Icons.email_outlined,
-                          validator: _validateEmail,
+                        Text(
+                          "Welcome to\nRiseTech",
+                          style: Theme.of(context).textTheme.displaySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Unlock your potential today.",
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: AppColors.textGrey),
+                        ),
+                        const SizedBox(height: 32),
 
-                        _buildTextField(
-                          controller: _passwordController,
-                          label: "Password",
-                          icon: Icons.lock_outline,
-                          isPassword: true,
-                          isVisible: _isPasswordVisible,
-                          onVisibilityChanged: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
+                        // Tabs
+                        Container(
+                          height: 55,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: TabBar(
+                            controller: _tabController,
+                            indicator: BoxDecoration(
+                              color: AppColors.primaryBlue,
+                              borderRadius: BorderRadius.circular(25),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primaryBlue.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            dividerColor: Colors.transparent,
+                            labelColor: Colors.white,
+                            unselectedLabelColor: AppColors.textGrey,
+                            labelStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            unselectedLabelStyle: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                            tabs: const [
+                              Tab(text: "Sign In"),
+                              Tab(text: "Register"),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Animated Form Fields
+                        AnimatedBuilder(
+                          animation: _tabController,
+                          builder: (context, _) {
+                            return Column(
+                              children: [
+                                // Name Fields (Only for Register)
+                                if (_tabController.index == 1) ...[
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildTextField(
+                                          controller: _firstNameController,
+                                          label: "First Name",
+                                          icon: Icons.person_outline,
+                                          validator:
+                                              (v) =>
+                                                  v!.isEmpty
+                                                      ? "Required"
+                                                      : null,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: _buildTextField(
+                                          controller: _lastNameController,
+                                          label: "Last Name",
+                                          icon: Icons.person_outline,
+                                          validator:
+                                              (v) =>
+                                                  v!.isEmpty
+                                                      ? "Required"
+                                                      : null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                    controller: _phoneController,
+                                    label: "Phone Number",
+                                    icon: Icons.phone_outlined,
+                                    validator: _validatePhone,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
+                                    keyboardType: TextInputType.phone,
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+
+                                _buildTextField(
+                                  controller: _emailController,
+                                  label: "Email Address",
+                                  icon: Icons.email_outlined,
+                                  validator: _validateEmail,
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                                const SizedBox(height: 16),
+
+                                _buildTextField(
+                                  controller: _passwordController,
+                                  label: "Password",
+                                  icon: Icons.lock_outline,
+                                  isPassword: true,
+                                  isVisible: _isPasswordVisible,
+                                  onVisibilityChanged: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                  validator: _validatePassword,
+                                ),
+
+                                if (_tabController.index == 0) ...[
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: _showForgotPasswordSheet,
+                                      child: const Text(
+                                        "Forgot Password?",
+                                        style: TextStyle(
+                                          color: AppColors.primaryBlue,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+
+                                if (_tabController.index == 1) ...[
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                    controller: _confirmPasswordController,
+                                    label: "Confirm Password",
+                                    icon: Icons.lock_outline,
+                                    isPassword: true,
+                                    isVisible: _isConfirmPasswordVisible,
+                                    onVisibilityChanged: () {
+                                      setState(() {
+                                        _isConfirmPasswordVisible =
+                                            !_isConfirmPasswordVisible;
+                                      });
+                                    },
+                                    validator: _validateConfirmPassword,
+                                  ),
+                                ],
+                              ],
+                            );
                           },
-                          validator: _validatePassword,
                         ),
 
-                        if (_tabController.index == 0) ...[
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: _showForgotPasswordSheet,
-                              child: const Text(
-                                "Forgot Password?",
-                                style: TextStyle(
-                                  color: AppColors.primaryBlue,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        const SizedBox(height: 32),
 
-                        if (_tabController.index == 1) ...[
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                            controller: _confirmPasswordController,
-                            label: "Confirm Password",
-                            icon: Icons.lock_outline,
-                            isPassword: true,
-                            isVisible: _isConfirmPasswordVisible,
-                            onVisibilityChanged: () {
-                              setState(() {
-                                _isConfirmPasswordVisible =
-                                    !_isConfirmPasswordVisible;
-                              });
-                            },
-                            validator: _validateConfirmPassword,
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _submit,
+                            child:
+                                _isLoading
+                                    ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : Text(
+                                      _tabController.index == 0
+                                          ? "Log In"
+                                          : "Create Account",
+                                    ),
                           ),
-                        ],
+                        ),
+                        // Spacer to push content up slightly in center alignment
+                        if (_tabController.index == 0)
+                          const SizedBox(height: 48),
                       ],
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 32),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _submit,
-                    child:
-                        _isLoading
-                            ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                            : Text(
-                              _tabController.index == 0
-                                  ? "Log In"
-                                  : "Create Account",
-                            ),
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

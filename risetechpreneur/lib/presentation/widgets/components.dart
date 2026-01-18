@@ -261,23 +261,32 @@ class StatItem extends StatelessWidget {
           ),
           child: Icon(icon, color: AppColors.primaryBlue, size: 20),
         ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              value,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: AppColors.secondaryNavy,
+        const SizedBox(width: 8), // Reduced from 12 to save space
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14, // Reduced from 16
+                  color: AppColors.secondaryNavy,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12, color: AppColors.textGrey),
-            ),
-          ],
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textGrey,
+                ), // Reduced from 12
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ],
     );
