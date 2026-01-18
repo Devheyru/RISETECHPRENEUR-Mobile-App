@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/presentation/screens/home_screen.dart';
 import 'package:risetechpreneur/presentation/screens/courses_screen.dart';
-import 'package:risetechpreneur/presentation/screens/blog_screen.dart';
+import 'package:risetechpreneur/presentation/screens/blogs_screen.dart';
 import 'package:risetechpreneur/presentation/screens/contact_screen.dart';
 import 'package:risetechpreneur/presentation/screens/more_screen.dart';
 
@@ -23,7 +23,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const CoursesScreen(),
-    const BlogScreen(),
+    const BlogsScreen(),
     const ContactScreen(),
     const MoreScreen(),
   ];
