@@ -6,12 +6,14 @@ import 'package:risetechpreneur/presentation/widgets/components.dart';
 import 'package:risetechpreneur/presentation/widgets/course_loading_shimmer.dart';
 
 /// Home‑page section that highlights a curated list of popular courses
-/// with lazy "View All / Show Less" pagination and async loading support.
-class PopularCoursesSection extends StatefulWidget {
+/// with optional "View All" navigation and performance optimizations.
+class PopularCoursesSection extends StatelessWidget {
   final List<Course> courses;
   final bool isLoading;
   final String? error;
   final VoidCallback? onRetry;
+  final VoidCallback? onViewAll;
+  final int maxDisplay;
 
   const PopularCoursesSection({
     super.key,
@@ -19,14 +21,9 @@ class PopularCoursesSection extends StatefulWidget {
     this.isLoading = false,
     this.error,
     this.onRetry,
+    this.onViewAll,
+    this.maxDisplay = 3,
   });
-
-  @override
-  State<PopularCoursesSection> createState() => _PopularCoursesSectionState();
-}
-
-class _PopularCoursesSectionState extends State<PopularCoursesSection> {
-  int _visibleCount = 3;
 
   void _navigateToCourse(BuildContext context, Course course) {
     Navigator.of(context).push(
@@ -39,7 +36,7 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
   @override
   Widget build(BuildContext context) {
     // Show loading state
-    if (widget.isLoading && widget.courses.isEmpty) {
+    if (isLoading && courses.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -52,7 +49,7 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
             padding: const EdgeInsets.only(left: 24, right: 8),
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            itemCount: 3,
+            itemCount: maxDisplay,
             itemBuilder:
                 (context, index) => const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -64,7 +61,7 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
     }
 
     // Show error state
-    if (widget.error != null && widget.courses.isEmpty) {
+    if (error != null && courses.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -92,9 +89,9 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (widget.onRetry != null)
+                  if (onRetry != null)
                     TextButton.icon(
-                      onPressed: widget.onRetry,
+                      onPressed: onRetry,
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retry'),
                     ),
@@ -107,7 +104,7 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
     }
 
     // Show empty state
-    if (widget.courses.isEmpty) {
+    if (courses.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -142,7 +139,7 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
       );
     }
 
-    final coursesToShow = widget.courses.take(_visibleCount).toList();
+    final coursesToShow = courses.take(maxDisplay).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,48 +154,36 @@ class _PopularCoursesSectionState extends State<PopularCoursesSection> {
           padding: const EdgeInsets.only(left: 24, right: 8),
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
           itemCount: coursesToShow.length,
           itemBuilder:
               (context, index) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: _PopularCourseCard(
-                  course: coursesToShow[index],
-                  onTap: () => _navigateToCourse(context, coursesToShow[index]),
+                child: RepaintBoundary(
+                  child: _PopularCourseCard(
+                    course: coursesToShow[index],
+                    onTap:
+                        () => _navigateToCourse(context, coursesToShow[index]),
+                  ),
                 ),
               ),
         ),
 
-        if (_visibleCount < widget.courses.length || _visibleCount > 3)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_visibleCount < widget.courses.length)
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _visibleCount += 3;
-                    });
-                  },
-                  child: const Text(
-                    "View All",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+        // View All button
+        if (onViewAll != null && courses.length > maxDisplay)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 16),
+              child: TextButton.icon(
+                onPressed: onViewAll,
+                icon: const Text(
+                  "View All Courses",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              if (_visibleCount < widget.courses.length && _visibleCount > 3)
-                const SizedBox(width: 16),
-              if (_visibleCount > 3)
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _visibleCount = 3;
-                    });
-                  },
-                  child: const Text(
-                    "Show Less",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-            ],
+                label: const Icon(Icons.arrow_forward, size: 18),
+              ),
+            ),
           ),
       ],
     );

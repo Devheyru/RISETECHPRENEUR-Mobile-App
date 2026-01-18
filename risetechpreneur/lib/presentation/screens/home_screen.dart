@@ -9,8 +9,10 @@ import 'package:risetechpreneur/presentation/widgets/components.dart';
 import 'package:risetechpreneur/presentation/widgets/popular_courses.dart';
 import 'package:risetechpreneur/presentation/widgets/blog_section.dart';
 import 'package:risetechpreneur/presentation/widgets/category_section.dart';
-import 'auth_screen.dart'; // Import Auth Screen
-import 'settings_screen.dart'; // Import Settings Screen
+import 'auth_screen.dart';
+import 'blogs_screen.dart';
+import 'courses_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -107,8 +109,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               courses: coursesState.courses,
               isLoading: coursesState.isLoading,
               error: coursesState.error,
+              maxDisplay: 3,
               onRetry:
                   () => ref.read(coursesStateProvider.notifier).loadCourses(),
+              onViewAll:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                  ),
             ),
             const SizedBox(height: 32),
 
@@ -196,8 +204,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(height: 32),
 
-            // --- NEW: Blog Section to match Image ---
-            BlogSection(blogs: blogs),
+            // Blog Section with View All navigation
+            BlogSection(
+              blogs: blogs,
+              maxDisplay: 3,
+              isLoading: ref.watch(blogsStateProvider).isLoading,
+              onViewAll:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BlogsScreen()),
+                  ),
+            ),
             const SizedBox(height: 48),
 
             // ----------------------------------------

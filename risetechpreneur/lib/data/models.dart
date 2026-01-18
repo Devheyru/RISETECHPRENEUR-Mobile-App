@@ -238,17 +238,117 @@ class Testimonial {
   });
 }
 
-/// Lightweight representation of a marketing / content blog post.
+/// Represents a blog post from the RiseTechpreneur platform.
 class BlogPost {
-  final String id;
+  final int id;
+  final String userId;
   final String title;
-  final String date;
-  final String imageUrl;
+  final String? subtitle;
+  final String content;
+  final String slug;
+  final String tags;
+  final bool isPublished;
+  final String status;
+  final List<String> media;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   const BlogPost({
     required this.id,
+    required this.userId,
     required this.title,
-    required this.date,
-    required this.imageUrl,
+    this.subtitle,
+    required this.content,
+    required this.slug,
+    required this.tags,
+    required this.isPublished,
+    required this.status,
+    required this.media,
+    required this.createdAt,
+    required this.updatedAt,
   });
+
+  /// Full image URL for the first media item
+  String get imageUrl {
+    if (media.isEmpty) return '';
+    final firstMedia = media.first;
+    if (firstMedia.startsWith('http')) return firstMedia;
+    return '$assetsBaseUrl/$firstMedia';
+  }
+
+  /// Formatted date for display (e.g., "Nov 24, 2025")
+  String get formattedDate {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
+  }
+
+  /// Estimated read time based on content length
+  String get readTime {
+    final wordCount = content.split(RegExp(r'\s+')).length;
+    final minutes = (wordCount / 200).ceil(); // ~200 words per minute
+    return '$minutes min read';
+  }
+
+  /// Tags as a list
+  List<String> get tagsList =>
+      tags.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+
+  /// Factory constructor for JSON parsing
+  factory BlogPost.fromJson(Map<String, dynamic> json) {
+    // Parse media - can be JSON string or list
+    List<String> parsedMedia = [];
+    final mediaJson = json['media'];
+    if (mediaJson is String && mediaJson.isNotEmpty) {
+      try {
+        // Media is stored as JSON string like "[\"path/to/image.jpg\"]"
+        final decoded =
+            mediaJson
+                .replaceAll('[', '')
+                .replaceAll(']', '')
+                .replaceAll('"', '')
+                .replaceAll('\\', '')
+                .split(',')
+                .map((s) => s.trim())
+                .where((s) => s.isNotEmpty)
+                .toList();
+        parsedMedia = decoded;
+      } catch (_) {
+        parsedMedia = [];
+      }
+    } else if (mediaJson is List) {
+      parsedMedia = mediaJson.map((e) => e.toString()).toList();
+    }
+
+    return BlogPost(
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      userId: json['user_id']?.toString() ?? '',
+      title: json['title'] as String? ?? '',
+      subtitle: json['subtitle'] as String?,
+      content: json['content'] as String? ?? '',
+      slug: json['slug'] as String? ?? '',
+      tags: json['tags'] as String? ?? '',
+      isPublished: json['is_published'] == '1' || json['is_published'] == true,
+      status: json['status'] as String? ?? 'draft',
+      media: parsedMedia,
+      createdAt:
+          DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
 }

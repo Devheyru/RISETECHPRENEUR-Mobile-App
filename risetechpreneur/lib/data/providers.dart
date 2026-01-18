@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:risetechpreneur/core/constants.dart';
+import 'package:risetechpreneur/data/blog_repository.dart';
 import 'package:risetechpreneur/data/course_repository.dart';
 import 'models.dart';
 
@@ -249,31 +250,141 @@ final testimonialsProvider = Provider<List<Testimonial>>((ref) {
 });
 
 // ============================================================================
-// BLOGS PROVIDER (MOCK DATA)
+// BLOGS PROVIDERS (API-INTEGRATED)
 // ============================================================================
 
+/// Repository provider for blogs
+final blogRepositoryProvider = Provider<BlogRepository>((ref) {
+  final repository = BlogRepository();
+  ref.onDispose(() => repository.dispose());
+  return repository;
+});
+
+/// State class for blogs with loading and pagination
+class BlogsState {
+  final List<BlogPost> blogs;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final int currentPage;
+  final int lastPage;
+  final int total;
+  final bool hasMore;
+
+  const BlogsState({
+    this.blogs = const [],
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.currentPage = 0,
+    this.lastPage = 1,
+    this.total = 0,
+    this.hasMore = true,
+  });
+
+  BlogsState copyWith({
+    List<BlogPost>? blogs,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    int? currentPage,
+    int? lastPage,
+    int? total,
+    bool? hasMore,
+  }) {
+    return BlogsState(
+      blogs: blogs ?? this.blogs,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: error,
+      currentPage: currentPage ?? this.currentPage,
+      lastPage: lastPage ?? this.lastPage,
+      total: total ?? this.total,
+      hasMore: hasMore ?? this.hasMore,
+    );
+  }
+}
+
+/// StateNotifier for managing blogs state and API operations
+class BlogsNotifier extends StateNotifier<BlogsState> {
+  final BlogRepository _repository;
+
+  BlogsNotifier(this._repository) : super(const BlogsState()) {
+    loadBlogs();
+  }
+
+  /// Load initial blogs (first page)
+  Future<void> loadBlogs() async {
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final response = await _repository.getBlogs(page: 1, size: 6);
+
+      state = state.copyWith(
+        blogs: response.blogs,
+        isLoading: false,
+        currentPage: response.currentPage,
+        lastPage: response.lastPage,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  /// Load more blogs (next page)
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || !state.hasMore || state.isLoading) return;
+
+    state = state.copyWith(isLoadingMore: true);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final response = await _repository.getBlogs(page: nextPage, size: 6);
+
+      state = state.copyWith(
+        blogs: [...state.blogs, ...response.blogs],
+        isLoadingMore: false,
+        currentPage: response.currentPage,
+        lastPage: response.lastPage,
+        total: response.total,
+        hasMore: response.hasMore,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoadingMore: false);
+      debugPrint('Failed to load more blogs: $e');
+    }
+  }
+
+  /// Refresh blogs
+  Future<void> refresh() async {
+    state = state.copyWith(currentPage: 0, hasMore: true, error: null);
+    await loadBlogs();
+  }
+}
+
+/// Main blogs state provider
+final blogsStateProvider = StateNotifierProvider<BlogsNotifier, BlogsState>((
+  ref,
+) {
+  final repository = ref.watch(blogRepositoryProvider);
+  return BlogsNotifier(repository);
+});
+
+/// Convenience provider to get just the blogs list
 final blogsProvider = Provider<List<BlogPost>>((ref) {
-  return [
-    const BlogPost(
-      id: '1',
-      title: 'How to master UI/UX Design in 2024',
-      date: 'Nov 20, 2025 • 5 min read',
-      imageUrl:
-          'https://rise-techpreneur.havanacademy.com/thumbnails/1763570891_dmmc.png',
-    ),
-    const BlogPost(
-      id: '2',
-      title: 'The Future of Flutter Development',
-      date: 'Nov 18, 2025 • 8 min read',
-      imageUrl:
-          'https://rise-techpreneur.havanacademy.com/assets/img/blog/blog-post-2.webp',
-    ),
-    const BlogPost(
-      id: '3',
-      title: 'SEO Strategies for Startups',
-      date: 'Nov 15, 2025 • 4 min read',
-      imageUrl:
-          'https://rise-techpreneur.havanacademy.com/assets/img/blog/blog-post-3.webp',
-    ),
-  ];
+  return ref.watch(blogsStateProvider).blogs;
+});
+
+/// Provider for checking if blogs are loading
+final blogsLoadingProvider = Provider<bool>((ref) {
+  return ref.watch(blogsStateProvider).isLoading;
+});
+
+/// Provider for blogs error state
+final blogsErrorProvider = Provider<String?>((ref) {
+  return ref.watch(blogsStateProvider).error;
 });
