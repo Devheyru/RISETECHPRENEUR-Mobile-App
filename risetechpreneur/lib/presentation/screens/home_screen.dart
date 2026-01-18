@@ -209,6 +209,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               blogs: blogs,
               maxDisplay: 3,
               isLoading: ref.watch(blogsStateProvider).isLoading,
+              error: ref.watch(blogsStateProvider).error,
               onViewAll:
                   () => Navigator.push(
                     context,
