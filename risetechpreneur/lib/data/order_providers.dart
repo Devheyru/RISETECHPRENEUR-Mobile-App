@@ -167,10 +167,15 @@ class PaymentProofController extends Notifier<PaymentProofState> {
 
   Future<void> pickFromGallery() async {
     state = state.copyWith(clearValidationError: true, clearSubmitError: true);
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return;
-    final file = File(picked.path);
-    state = state.copyWith(selectedFile: file);
+    try {
+      final picked = await _picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return;
+      final file = File(picked.path);
+      state = state.copyWith(selectedFile: file);
+    } catch (e, st) {
+      final msg = ErrorHandler.handleError(e, st);
+      state = state.copyWith(submitError: msg);
+    }
   }
 
   void clearSelected() {
