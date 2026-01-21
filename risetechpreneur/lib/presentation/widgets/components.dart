@@ -30,24 +30,30 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontSize: 22, // Adjusted for section titles
-                ),
-              ),
-              if (subtitle != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    subtitle!,
-                    style: Theme.of(context).textTheme.bodyMedium,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    fontSize: 22, // Adjusted for section titles
                   ),
                 ),
-            ],
+                if (subtitle != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      subtitle!,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+              ],
+            ),
           ),
           if (onSeeAll != null)
             TextButton(onPressed: onSeeAll, child: const Text("View All")),
@@ -91,26 +97,26 @@ class CourseCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
-              child: Image.network(
-                course.imageUrl,
-                height: 160,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                cacheHeight: 400, // Optimize memory usage
-                cacheWidth: 800,
-                // Using a key for optimization and a placeholder in case of network issues
-                key: ValueKey(course.imageUrl),
-                errorBuilder:
-                    (context, error, stackTrace) => Container(
-                      height: 160,
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          color: AppColors.textGrey,
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  course.imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  cacheHeight: 400, // Optimize memory usage
+                  cacheWidth: 800,
+                  key: ValueKey(course.imageUrl),
+                  errorBuilder:
+                      (context, error, stackTrace) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            color: AppColors.textGrey,
+                          ),
                         ),
                       ),
-                    ),
+                ),
               ),
             ),
             Padding(

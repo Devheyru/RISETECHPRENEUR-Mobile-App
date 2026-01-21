@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: RiseTechpreneur - Orders & Learnings
+  version: 0.1.0
+servers:
+  - url: https://rise-techpreneur.havanacademy.com
+
+paths:
+  /api/orders/place:
+    post:
+      summary: Place course order (paid enrollment)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - course_id
+                - transaction_screenshot
+              properties:
+                course_id:
+                  type: string
+                  description: Course ID
+                  example: "3"
+                transaction_screenshot:
+                  type: string
+                  format: binary
+                  description: PNG/JPG/JPEG payment proof image
+      responses:
+        "200":
+          description: Order placed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceOrderResponse"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation error
+        "500":
+          description: Server error
+
+  /api/my-learnings:
+    get:
+      summary: Fetch ordered courses (My Learnings)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Learnings returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyLearningsResponse"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    PlaceOrderResponse:
+      type: object
+      required: [success, message, order]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Course ordered successfully"
+        order:
+          $ref: "#/components/schemas/Order"
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 11
+        course_id:
+          type: integer
+          example: 3
+        user_id:
+          type: integer
+          example: 2
+        status:
+          type: string
+          example: pending
+        transaction_screenshot:
+          type: string
+          example: "public/order/transaction_screenshots/xxx.jpg"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    MyLearningsResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Learning"
+
+    Learning:
+      type: object
+      required: [order_id, status, course]
+      properties:
+        order_id:
+          type: integer
+          example: 11
+        status:
+          type: string
+          example: approved
+        total_students:
+          type: integer
+          example: 10
+        course:
+          $ref: "#/components/schemas/Course"
+
+    Course:
+      type: object
+      description: Course payload as returned by the backend in my-learnings.
+      properties:
+        id:
+          type: integer
+          example: 3
+        title:
+          type: string
+        subtitle:
+          type: string
+        slug:
+          type: string
+        thumbnail:
+          type: string
+        price:
+          type: number
+          format: double
+        category:
+          type: string
+        duration:
+          type: string

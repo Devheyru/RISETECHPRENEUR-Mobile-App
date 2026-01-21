@@ -10,14 +10,16 @@ import 'package:risetechpreneur/presentation/screens/more_screen.dart';
 ///
 /// Uses [IndexedStack] to preserve the state of each tab when switching.
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  final int initialIndex;
+
+  const MainNavigation({super.key, this.initialIndex = 0});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   // List of screens for each tab
   final List<Widget> _screens = [
@@ -27,6 +29,14 @@ class _MainNavigationState extends State<MainNavigation> {
     const ContactScreen(),
     const MoreScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final maxIndex = _screens.length - 1;
+    final idx = widget.initialIndex;
+    _currentIndex = idx < 0 ? 0 : (idx > maxIndex ? maxIndex : idx);
+  }
 
   @override
   Widget build(BuildContext context) {

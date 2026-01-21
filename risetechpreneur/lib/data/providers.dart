@@ -16,6 +16,14 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
   return repository;
 });
 
+/// Fetch a single course by id.
+///
+/// Used by features that only have a courseId (e.g., pending submissions).
+final courseByIdProvider = FutureProvider.family<Course, int>((ref, id) async {
+  final repo = ref.watch(courseRepositoryProvider);
+  return repo.getCourseById(id);
+});
+
 /// State class for courses with loading and pagination
 class CoursesState {
   final List<Course> courses;

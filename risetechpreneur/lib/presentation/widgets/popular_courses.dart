@@ -240,25 +240,26 @@ class _PopularCourseCard extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
-                  child: Image.network(
-                    course.imageUrl,
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    cacheHeight: 400,
-                    cacheWidth: 800,
-                    key: ValueKey(course.imageUrl),
-                    errorBuilder:
-                        (context, error, stackTrace) => Container(
-                          height: 160,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: AppColors.textGrey,
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.network(
+                      course.imageUrl,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      cacheHeight: 400,
+                      cacheWidth: 800,
+                      key: ValueKey(course.imageUrl),
+                      errorBuilder:
+                          (context, error, stackTrace) => Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                color: AppColors.textGrey,
+                              ),
                             ),
                           ),
-                        ),
+                    ),
                   ),
                 ),
                 // Feature badge
