@@ -19,7 +19,10 @@ String? validatePaymentProofImage(
   final dot = path.lastIndexOf('.');
   final ext = dot == -1 ? '' : path.substring(dot + 1).toLowerCase();
   if (!allowedExtensions.contains(ext)) {
-    return 'Unsupported file type. Please use PNG or JPG.';
+    final exts = (allowedExtensions.toList()..sort())
+        .map((e) => e.toUpperCase())
+        .join(', ');
+    return 'Unsupported file type. Please use $exts.';
   }
 
   if (!file.existsSync()) {
@@ -28,7 +31,9 @@ String? validatePaymentProofImage(
 
   final size = file.lengthSync();
   if (size > maxBytes) {
-    return 'Image is too large. Please choose an image under 5MB.';
+    final maxMb = (maxBytes / (1024 * 1024)).toStringAsFixed(0);
+    return 'Image is too large. Please choose an image under ${maxMb}MB.';
+  }
   }
 
   return null;
