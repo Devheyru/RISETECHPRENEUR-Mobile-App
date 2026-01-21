@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:risetechpreneur/core/error_handler.dart';
+import 'package:risetechpreneur/data/pending_submission_store.dart';
 
 /// Lightweight representation of an authenticated user.
 class AppUser {
@@ -40,11 +42,21 @@ class AppUser {
 
 /// Riverpod state for the current authenticated user (or `null` if logged out).
 class AuthState extends StateNotifier<AppUser?> {
-  final _storage = const FlutterSecureStorage();
+  final Ref _ref;
+  final FlutterSecureStorage _storage;
   final String baseUrl = "https://rise-techpreneur.havanacademy.com/api";
 
-  AuthState() : super(null) {
-    _restoreSession();
+  AuthState({
+    required Ref ref,
+    FlutterSecureStorage? storage,
+    AppUser? initialUser,
+    bool restoreOnInit = true,
+  }) : _ref = ref,
+       _storage = storage ?? const FlutterSecureStorage(),
+       super(initialUser) {
+    if (restoreOnInit && initialUser == null) {
+      _restoreSession();
+    }
   }
 
   /// Try to restore session from secure storage
@@ -295,7 +307,8 @@ class AuthState extends StateNotifier<AppUser?> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        final token = data['token']; // May be null - some APIs don't return token on signup
+        final token =
+            data['token']; // May be null - some APIs don't return token on signup
         final userData = data['user'];
 
         debugPrint('Registration successful!');
@@ -306,7 +319,10 @@ class AuthState extends StateNotifier<AppUser?> {
         if (token != null) {
           await _storage.write(key: 'auth_token', value: token);
         }
-        await _storage.write(key: 'auth_email', value: email.trim().toLowerCase());
+        await _storage.write(
+          key: 'auth_email',
+          value: email.trim().toLowerCase(),
+        );
 
         if (userData != null) {
           final user = AppUser.fromJson(userData, token: token);
@@ -334,7 +350,7 @@ class AuthState extends StateNotifier<AppUser?> {
             token: token,
           );
         }
-        
+
         // If no token was returned, user needs to sign in after registration
         // This is common for APIs that require email verification
         if (token == null) {
@@ -481,6 +497,9 @@ class AuthState extends StateNotifier<AppUser?> {
       }
     }
 
+    // Clear pending enrollment submissions to avoid leaking between accounts.
+    await _ref.read(pendingSubmissionStoreProvider).clear();
+
     await _storage.deleteAll();
     state = null;
   }
@@ -568,7 +587,7 @@ class AuthState extends StateNotifier<AppUser?> {
   }
 
   /// Reset Password
-  /// 
+  ///
   /// Completes the password reset flow using the token received via deep link.
   /// After successful reset, the user should be navigated to the login screen.
   Future<void> resetPassword({
@@ -726,5 +745,5 @@ class AuthState extends StateNotifier<AppUser?> {
 
 /// Global provider that exposes [AuthState] and the current [AppUser].
 final authProvider = StateNotifierProvider<AuthState, AppUser?>((ref) {
-  return AuthState();
+  return AuthState(ref: ref);
 });

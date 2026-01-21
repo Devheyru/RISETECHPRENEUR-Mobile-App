@@ -7,6 +7,7 @@
 ## 🚀 Features
 
 ### **Authentication & User Management**
+
 - ✅ **Full Auth Flow** – Sign-in, sign-up, and logout
 - ✅ **Real API Integration** – Connected to `https://rise-techpreneur.havanacademy.com/api`
 - ✅ **Secure Storage** – JWT tokens stored securely with `flutter_secure_storage`
@@ -15,6 +16,7 @@
 - ✅ **Deep Linking** – Password reset via `risetechpreneur://reset-password` links
 
 ### **Home Screen**
+
 - Hero section with CTA and key statistics
 - Popular courses horizontal carousel
 - Course categories grid (12 categories)
@@ -24,34 +26,42 @@
 - Auth-gated enrollment (redirects to login for unauthenticated users)
 
 ### **Courses**
+
 - Browse all courses in a responsive grid layout
 - Horizontally scrollable category filter chips
 - "All" category to view entire catalog
 - Real-time filtering by selected category
 - Course cards with ratings, duration, and enrollment buttons
+- Paid-course enrollment supports uploading payment proof (transaction screenshot) (PNG/JPG/JPEG, <= 5MB)
+- iOS requires photo library permission text (`NSPhotoLibraryUsageDescription`)
 
 ### **Blog**
+
 - Curated blog posts for entrepreneurs
 - Reusable `BlogCard` component
 - Date and read-time metadata
 
 ### **Contact**
+
 - Quick action cards (Email, Phone, Address)
 - Contact form with validation
 - Email integration via `url_launcher`
 
 ### **More Options**
-- Events (workshops & webinars) – *placeholder*
-- Terms of Service – *placeholder*
-- Privacy Policy – *placeholder*
-- App Settings – *placeholder*
+
+- Events (workshops & webinars) – _placeholder_
+- Terms of Service – _placeholder_
+- Privacy Policy – _placeholder_
+- App Settings – _placeholder_
 
 ### **Settings**
+
 - User profile display
-- Account management options – *placeholder*
+- Account management options – _placeholder_
 - Logout functionality
 
 ### **Navigation**
+
 - Custom bottom navigation bar with 5 tabs
 - `IndexedStack` for state preservation across tabs
 - Smooth navigation with Material Design transitions
@@ -102,22 +112,23 @@ lib/
 
 ## 🛠️ Tech Stack
 
-| Component | Technology | Version |
-|-----------|-----------|---------|
-| **Framework** | Flutter | SDK ≥3.7.2 |
-| **State Management** | Riverpod | 3.0.3 |
-| **Typography** | Google Fonts (Inter) | 6.3.2 |
-| **HTTP Client** | http | 1.6.0 |
-| **Secure Storage** | flutter_secure_storage | 9.2.4 |
-| **Deep Linking** | app_links | 6.4.1 |
-| **URL Launcher** | url_launcher | 6.3.2 |
-| **Backend API** | REST API | `https://rise-techpreneur.havanacademy.com/api` |
+| Component            | Technology             | Version                                         |
+| -------------------- | ---------------------- | ----------------------------------------------- |
+| **Framework**        | Flutter                | SDK ≥3.7.2                                      |
+| **State Management** | Riverpod               | 3.0.3                                           |
+| **Typography**       | Google Fonts (Inter)   | 6.3.2                                           |
+| **HTTP Client**      | http                   | 1.6.0                                           |
+| **Secure Storage**   | flutter_secure_storage | 9.2.4                                           |
+| **Deep Linking**     | app_links              | 6.4.1                                           |
+| **URL Launcher**     | url_launcher           | 6.3.2                                           |
+| **Backend API**      | REST API               | `https://rise-techpreneur.havanacademy.com/api` |
 
 ---
 
 ## 🎨 Design System
 
 ### **Color Palette**
+
 ```dart
 Primary Blue:    #155DFC  // Buttons, active states
 Secondary Navy:  #1E293B  // Headers, dark text
@@ -127,6 +138,7 @@ Accent Yellow:   #FBBF24  // Star ratings
 ```
 
 ### **Typography**
+
 - **Font Family**: Inter (via Google Fonts)
 - **Display Large**: 32px, 800 weight
 - **Display Medium**: 24px, 700 weight
@@ -139,6 +151,7 @@ Accent Yellow:   #FBBF24  // Star ratings
 ## 🔐 Authentication
 
 ### **API Endpoints**
+
 - `POST /login-user` – Sign in with email/password
 - `POST /create-user` – User registration
 - `POST /logout-user` – Sign out
@@ -147,20 +160,25 @@ Accent Yellow:   #FBBF24  // Star ratings
 - `POST /password/update` – Update password (authenticated)
 
 ### **Validation Rules**
+
 - **Email**: Standard email format
 - **Phone**: Ethiopian format (+251XXXXXXXXX)
 - **Password**: Minimum 6 characters
 - **Confirm Password**: Must match password
 
 ### **Secure Storage**
+
 The app stores the following in encrypted storage:
+
 - `auth_token` – JWT token for API requests
 - `auth_email` – User email
 - `auth_first_name` – User first name
 - `auth_last_name` – User last name
 
 ### **Deep Link Support**
+
 Password reset links:
+
 ```
 risetechpreneur://reset-password?token=<TOKEN>&email=<EMAIL>
 ```
@@ -170,6 +188,7 @@ risetechpreneur://reset-password?token=<TOKEN>&email=<EMAIL>
 ## 🚀 Getting Started
 
 ### **Prerequisites**
+
 - Flutter SDK (≥3.7.2)
 - Dart SDK
 - Android Studio / Xcode (for mobile development)
@@ -178,12 +197,14 @@ risetechpreneur://reset-password?token=<TOKEN>&email=<EMAIL>
 ### **Installation**
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd risetechpreneur
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
@@ -196,14 +217,17 @@ risetechpreneur://reset-password?token=<TOKEN>&email=<EMAIL>
 ### **Platform-Specific Setup**
 
 #### **Android**
+
 - Firebase configured with Project ID: `rise-tech-121`
 - App ID: `1:688006449226:android:166334a8c93ff211a63eb3`
 
 #### **iOS**
+
 - Firebase configured
 - App ID: `1:688006449226:ios:61fb716e3a2cb020a63eb3`
 
 #### **Web & Desktop**
+
 - Basic support enabled
 - No additional configuration required
 
@@ -212,11 +236,13 @@ risetechpreneur://reset-password?token=<TOKEN>&email=<EMAIL>
 ## 📊 Current Data Status
 
 ### **✅ API-Integrated**
+
 - User authentication (login, signup, logout)
 - Password management (reset, update)
 - Session persistence
 
 ### **⚠️ Mock Data** (Hardcoded Providers)
+
 - **Courses**: 7 sample courses
 - **Categories**: 12 categories (Design, Programming, Marketing, etc.)
 - **Testimonials**: 3 user testimonials
@@ -257,12 +283,14 @@ Deep Links:
 ## 🎯 Next Steps
 
 ### **High Priority**
+
 1. **Replace Mock Data** – Connect `coursesProvider`, `categoriesProvider`, `testimonialsProvider`, and `blogsProvider` to real API endpoints
 2. **Implement Course Detail Screen** – Complete `course_detail.dart` with course information, curriculum, reviews, and enrollment
 3. **Add Loading States** – Show loading indicators during API calls
 4. **Error Handling** – Implement retry mechanisms and user-friendly error messages
 
 ### **Medium Priority**
+
 5. **Complete More Screen Options** – Implement Events, Terms of Service, and Privacy Policy pages
 6. **User Profile Editing** – Allow users to update profile information
 7. **Course Enrollment Flow** – Integrate payment or registration system
@@ -270,6 +298,7 @@ Deep Links:
 9. **Testing** – Unit tests for auth logic, widget tests for screens
 
 ### **Low Priority**
+
 10. **Offline Support** – Cache data for offline viewing
 11. **Push Notifications** – Notify users of new courses and updates
 12. **Analytics** – Track user behavior and engagement
@@ -281,11 +310,13 @@ Deep Links:
 ## 🧪 Testing
 
 ### **Current Status**
+
 - Test directory exists: `test/`
 - Standard widget test template present
 - **No custom tests implemented yet**
 
 ### **Recommended Tests**
+
 - Unit tests for `AuthState` methods
 - Widget tests for authentication flow
 - Integration tests for navigation
@@ -306,6 +337,7 @@ Deep Links:
 ## 🤝 Contributing
 
 This project uses Flutter best practices:
+
 - **State Management**: Riverpod for reactive state
 - **Architecture**: Feature-based organization
 - **Theming**: Centralized design system
@@ -315,7 +347,7 @@ This project uses Flutter best practices:
 
 ## 📄 License
 
-*Add your license information here*
+_Add your license information here_
 
 ---
 
@@ -324,8 +356,9 @@ This project uses Flutter best practices:
 **RiseTechpreneur** – Empowering Ethiopian Tech Entrepreneurs
 
 For questions or support, use the Contact screen in the app or visit:
+
 - **Website**: https://rise-techpreneur.havanacademy.com
-- **Email**: info@risetechpreneur.com *(update with actual contact)*
+- **Email**: info@risetechpreneur.com _(update with actual contact)_
 
 ---
 

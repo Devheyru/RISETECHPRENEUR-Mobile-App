@@ -33,6 +33,13 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Test outputs
+coverage/
+
+# Environment files (do not commit secrets)
+.env
+.env.*
+
 # Symbolication related
 app.*.symbols
 

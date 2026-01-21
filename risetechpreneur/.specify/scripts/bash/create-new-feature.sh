@@ -155,20 +155,21 @@ clean_branch_name() {
     echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\+/-/g' | sed 's/^-//' | sed 's/-$//'
 }
 
-# Resolve repository root. Prefer git information when available, but fall back
-# to searching for repository markers so the workflow still functions in repositories that
-# were initialised with --no-git.
+# Resolve repository root.
+#
+# IMPORTANT: The working root for Specify in this repo is the Flutter app folder
+# where `.specify/` lives. This may be different from the git toplevel.
 SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+REPO_ROOT="$(find_repo_root "$SCRIPT_DIR")"
+if [ -z "$REPO_ROOT" ]; then
+    echo "Error: Could not determine Specify root (directory containing .specify)." >&2
+    exit 1
+fi
+
 if git rev-parse --show-toplevel >/dev/null 2>&1; then
-    REPO_ROOT=$(git rev-parse --show-toplevel)
     HAS_GIT=true
 else
-    REPO_ROOT="$(find_repo_root "$SCRIPT_DIR")"
-    if [ -z "$REPO_ROOT" ]; then
-        echo "Error: Could not determine repository root. Please run this script from within the repository." >&2
-        exit 1
-    fi
     HAS_GIT=false
 fi
 

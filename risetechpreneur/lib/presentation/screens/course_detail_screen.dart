@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
 import 'package:risetechpreneur/core/constants.dart';
 import 'package:risetechpreneur/data/auth_provider.dart';
+import 'package:risetechpreneur/data/order_providers.dart';
 import 'package:risetechpreneur/data/models.dart';
 import 'package:risetechpreneur/presentation/screens/auth_screen.dart';
+import 'package:risetechpreneur/presentation/screens/main_navigation.dart';
+import 'package:risetechpreneur/presentation/widgets/enrollment_status_badge.dart';
+import 'package:risetechpreneur/presentation/widgets/payment_proof_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Full-featured course detail screen with hero image, tabs, and enrollment.
@@ -34,7 +38,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     super.dispose();
   }
 
-  void _handleEnrollment() {
+  void _handleEnrollment({required bool hasExistingStatus}) {
     final user = ref.read(authProvider);
     if (user == null) {
       Navigator.of(
@@ -46,9 +50,40 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } else {
-      _launchCourseUrl();
+      return;
     }
+
+    final course = widget.course;
+    if (course.price <= 0) {
+      _launchCourseUrl();
+      return;
+    }
+
+    if (hasExistingStatus) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You have already submitted an enrollment request.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    PaymentProofSheet.show(
+      context,
+      courseId: course.id,
+      courseTitle: course.title,
+      coursePriceEtb: course.price,
+    );
+  }
+
+  void _viewMyLearnings() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const MainNavigation(initialIndex: 4),
+      ),
+      (route) => false,
+    );
   }
 
   Future<void> _launchCourseUrl() async {
@@ -70,6 +105,17 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   @override
   Widget build(BuildContext context) {
     final course = widget.course;
+    final enrollmentStatusAsync = ref.watch(
+      enrollmentStatusByCourseIdProvider(course.id),
+    );
+
+    final enrollmentStatus = enrollmentStatusAsync.asData?.value;
+
+    final isPaidCourse = course.price > 0;
+    final hasExistingStatus = isPaidCourse && enrollmentStatus != null;
+    final isCheckingStatus = isPaidCourse && enrollmentStatusAsync.isLoading;
+    final isApproved =
+        isPaidCourse && enrollmentStatus?.status.isApproved == true;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -307,7 +353,18 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       // Fixed bottom bar with price and enroll button
       bottomNavigationBar: _EnrollmentBar(
         course: course,
-        onEnroll: _handleEnrollment,
+        enrollmentStatusAsync: enrollmentStatusAsync,
+        onViewMyLearnings: _viewMyLearnings,
+        onPrimaryAction:
+            isCheckingStatus
+                ? null
+                : isPaidCourse
+                ? (isApproved
+                    ? _launchCourseUrl
+                    : hasExistingStatus
+                    ? null
+                    : () => _handleEnrollment(hasExistingStatus: false))
+                : _launchCourseUrl,
       ),
     );
   }
@@ -418,12 +475,40 @@ class _StatChip extends StatelessWidget {
 /// Enrollment bar - extracted for cleaner code
 class _EnrollmentBar extends StatelessWidget {
   final Course course;
-  final VoidCallback onEnroll;
+  final AsyncValue<EnrollmentStatus?> enrollmentStatusAsync;
+  final VoidCallback? onPrimaryAction;
+  final VoidCallback onViewMyLearnings;
 
-  const _EnrollmentBar({required this.course, required this.onEnroll});
+  const _EnrollmentBar({
+    required this.course,
+    required this.enrollmentStatusAsync,
+    required this.onPrimaryAction,
+    required this.onViewMyLearnings,
+  });
+
+  String get _primaryLabel {
+    if (course.price <= 0) return 'Start Learning';
+
+    final status = enrollmentStatusAsync.asData?.value;
+    if (status != null) {
+      if (status.status.isApproved) return 'Start Learning';
+      if (status.status.isPending) return 'Enrollment Pending';
+      return 'Enrollment Submitted';
+    }
+
+    if (enrollmentStatusAsync.isLoading) return 'Checking status…';
+    return 'Enroll Now';
+  }
+
+  String get _priceLabel {
+    if (course.price <= 0) return 'Free';
+    return 'ETB ${course.price.toStringAsFixed(0)}';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final status = enrollmentStatusAsync.asData?.value;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -437,46 +522,77 @@ class _EnrollmentBar extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Price
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            if (course.price > 0 && status != null) ...[
+              Row(
+                children: [
+                  EnrollmentStatusBadge(status: status.status),
+                  const SizedBox(width: 8),
+                  if (status.fromPendingCache)
+                    Text(
+                      'Saved locally',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textGrey,
+                      ),
+                    ),
+                  const Spacer(),
+                  TextButton(
+                    key: const Key('course_detail_view_my_learnings_button'),
+                    onPressed: onViewMyLearnings,
+                    child: const Text('View in My Learnings'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+            Row(
               children: [
-                Text(
-                  'Price',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.textGrey),
+                // Price
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Price',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textGrey,
+                      ),
+                    ),
+                    Text(
+                      _priceLabel,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppColors.primaryBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'ETB ${course.price.toStringAsFixed(0)}',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    fontSize: 24,
-                    color: AppColors.primaryBlue,
+                const SizedBox(width: 24),
+                Expanded(
+                  child: ElevatedButton(
+                    key: const Key('course_detail_enroll_button'),
+                    onPressed: onPrimaryAction,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      _primaryLabel,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],
-            ),
-            const SizedBox(width: 24),
-            // Enroll button
-            Expanded(
-              child: ElevatedButton(
-                onPressed: onEnroll,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Enroll Now',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
             ),
           ],
         ),

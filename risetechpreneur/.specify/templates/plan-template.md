@@ -29,9 +29,13 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+- [ ] Code quality gate: `flutter analyze` is clean; no new lints ignored.
+- [ ] Testing gate: new/changed behavior has appropriate unit/widget/integration tests.
+- [ ] UX gate: UI uses design tokens/components; includes loading/empty/error states.
+- [ ] Performance gate: no avoidable rebuilds/jank; profile-mode validation if relevant.
+- [ ] Reliability gate: errors handled explicitly; no silent failures.
 
 ## Project Structure
 
@@ -48,6 +52,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -56,39 +61,21 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# Option: Flutter mobile app (DEFAULT for this repo)
+lib/
+├── core/
+├── data/
+└── presentation/
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+test/
+├── unit/
+├── widget/
+└── golden/ (optional)
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+integration_test/ (optional but recommended for critical journeys)
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+android/
+ios/
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
@@ -98,7 +85,7 @@ directories captured above]
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |

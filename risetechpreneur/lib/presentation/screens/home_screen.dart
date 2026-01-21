@@ -326,25 +326,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 24),
           // Stats
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              StatItem(
-                label: "Courses",
-                value: "1.2k+",
-                icon: Icons.play_circle_outline,
-              ),
-              StatItem(
-                label: "Students",
-                value: "50k+",
-                icon: Icons.people_outline,
-              ),
-              StatItem(
-                label: "Success ",
-                value: "98%",
-                icon: Icons.school_outlined,
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final maxWidth = constraints.maxWidth;
+              final isNarrow = maxWidth < 360;
+              final itemWidth =
+                  isNarrow ? (maxWidth - 12) / 2 : (maxWidth - 24) / 3;
+
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  SizedBox(
+                    width: itemWidth,
+                    child: const StatItem(
+                      label: "Courses",
+                      value: "1.2k+",
+                      icon: Icons.play_circle_outline,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: const StatItem(
+                      label: "Students",
+                      value: "50k+",
+                      icon: Icons.people_outline,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: const StatItem(
+                      label: "Success",
+                      value: "98%",
+                      icon: Icons.school_outlined,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),

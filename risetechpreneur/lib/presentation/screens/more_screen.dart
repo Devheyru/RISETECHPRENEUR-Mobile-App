@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:risetechpreneur/core/app_theme.dart';
+import 'package:risetechpreneur/presentation/screens/my_learnings_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -22,6 +23,19 @@ class MoreScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
+          _MoreOptionItem(
+            icon: Icons.school_outlined,
+            title: 'My Learnings',
+            subtitle: 'Your enrolled courses and statuses',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const MyLearningsScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
           _MoreOptionItem(
             icon: Icons.event_available_outlined,
             title: 'Events',
