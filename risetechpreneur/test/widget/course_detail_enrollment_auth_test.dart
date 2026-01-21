@@ -57,7 +57,7 @@ void main() {
         ProviderScope(
           overrides: [
             authProvider.overrideWith(
-              (ref) => AuthState(restoreOnInit: false, initialUser: null),
+              (ref) => AuthState(ref: ref, restoreOnInit: false, initialUser: null),
             ),
             myLearningsProvider.overrideWith((ref) async => const <Learning>[]),
             pendingSubmissionStoreProvider.overrideWithValue(store),

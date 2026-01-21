@@ -1,9 +1,9 @@
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:risetechpreneur/core/error_handler.dart';
 import 'package:risetechpreneur/core/enrollment_validation.dart';
@@ -19,8 +19,8 @@ final orderRepositoryProvider = Provider<OrderRepository>((ref) {
   return repository;
 });
 
-final pendingSubmissionStoreProvider = Provider<PendingSubmissionStore>((ref) {
-  return PendingSubmissionStore();
+final imagePickerProvider = Provider<ImagePicker>((ref) {
+  return ImagePicker();
 });
 
 final pendingSubmissionsProvider =
@@ -46,16 +46,14 @@ final myLearningsProvider = FutureProvider<List<Learning>>((ref) async {
   return learnings;
 });
 
-class PlaceOrderController extends StateNotifier<AsyncValue<Order?>> {
-  final Ref _ref;
+class PlaceOrderController extends AsyncNotifier<Order?> {
+  @override
+  FutureOr<Order?> build() {
+    return null;
+  }
 
-  PlaceOrderController(this._ref) : super(const AsyncValue.data(null));
-
-  Future<Order> placeOrder({
-    required int courseId,
-    required File screenshot,
-  }) async {
-    final user = _ref.read(authProvider);
+  Future<Order> placeOrder({required int courseId, required File screenshot}) async {
+    final user = ref.read(authProvider);
     final token = user?.token;
     if (token == null || token.isEmpty) {
       throw AuthException(
@@ -65,24 +63,24 @@ class PlaceOrderController extends StateNotifier<AsyncValue<Order?>> {
       );
     }
 
-    state = const AsyncValue.loading();
-    final repo = _ref.read(orderRepositoryProvider);
-    final result = await AsyncValue.guard(() {
-      return repo.placeOrder(
-        courseId: courseId,
-        screenshot: screenshot,
-        token: token,
-      );
-    });
+    state = const AsyncLoading();
+    final repo = ref.read(orderRepositoryProvider);
+    final result = await AsyncValue.guard(() => repo.placeOrder(
+      courseId: courseId,
+      screenshot: screenshot,
+      token: token,
+    ));
     state = result;
-    return result.value!;
+
+    if (result.hasError) {
+      Error.throwWithStackTrace(result.error!, result.stackTrace!);
+    }
+    return result.requireValue;
   }
 }
 
 final placeOrderControllerProvider =
-    StateNotifierProvider<PlaceOrderController, AsyncValue<Order?>>((ref) {
-      return PlaceOrderController(ref);
-    });
+    AsyncNotifierProvider<PlaceOrderController, Order?>(PlaceOrderController.new);
 
 class EnrollmentStatus {
   final OrderStatus status;
@@ -155,14 +153,17 @@ class PaymentProofState {
   }
 }
 
-class PaymentProofController extends StateNotifier<PaymentProofState> {
-  final Ref _ref;
+class PaymentProofController extends Notifier<PaymentProofState> {
   final int _courseId;
-  final ImagePicker _picker;
+  late final ImagePicker _picker;
 
-  PaymentProofController(this._ref, this._courseId, {ImagePicker? picker})
-    : _picker = picker ?? ImagePicker(),
-      super(const PaymentProofState.initial());
+  PaymentProofController(this._courseId);
+
+  @override
+  PaymentProofState build() {
+    _picker = ref.watch(imagePickerProvider);
+    return const PaymentProofState.initial();
+  }
 
   Future<void> pickFromGallery() async {
     state = state.copyWith(clearValidationError: true, clearSubmitError: true);
@@ -190,11 +191,11 @@ class PaymentProofController extends StateNotifier<PaymentProofState> {
     state = state.copyWith(isSubmitting: true, clearSubmitError: true);
 
     try {
-      final order = await _ref
+      final order = await ref
           .read(placeOrderControllerProvider.notifier)
           .placeOrder(courseId: _courseId, screenshot: file);
 
-      final pendingStore = _ref.read(pendingSubmissionStoreProvider);
+      final pendingStore = ref.read(pendingSubmissionStoreProvider);
       await pendingStore.save(
         courseId: _courseId,
         submission: PendingSubmission(
@@ -205,8 +206,8 @@ class PaymentProofController extends StateNotifier<PaymentProofState> {
         ),
       );
 
-      _ref.invalidate(myLearningsProvider);
-      _ref.invalidate(pendingSubmissionsProvider);
+      ref.invalidate(myLearningsProvider);
+      ref.invalidate(pendingSubmissionsProvider);
 
       state = state.copyWith(isSubmitting: false);
       return order;
@@ -218,7 +219,8 @@ class PaymentProofController extends StateNotifier<PaymentProofState> {
   }
 }
 
-final paymentProofControllerProvider = StateNotifierProvider.autoDispose
-    .family<PaymentProofController, PaymentProofState, int>((ref, courseId) {
-      return PaymentProofController(ref, courseId);
-    });
+final paymentProofControllerProvider =
+    NotifierProvider.autoDispose
+        .family<PaymentProofController, PaymentProofState, int>(
+          PaymentProofController.new,
+        );

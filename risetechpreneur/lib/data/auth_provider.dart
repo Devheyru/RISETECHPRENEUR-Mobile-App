@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:risetechpreneur/core/error_handler.dart';
+import 'package:risetechpreneur/data/pending_submission_store.dart';
 
 /// Lightweight representation of an authenticated user.
 class AppUser {
@@ -40,14 +42,17 @@ class AppUser {
 
 /// Riverpod state for the current authenticated user (or `null` if logged out).
 class AuthState extends StateNotifier<AppUser?> {
+  final Ref _ref;
   final FlutterSecureStorage _storage;
   final String baseUrl = "https://rise-techpreneur.havanacademy.com/api";
 
   AuthState({
+    required Ref ref,
     FlutterSecureStorage? storage,
     AppUser? initialUser,
     bool restoreOnInit = true,
-  }) : _storage = storage ?? const FlutterSecureStorage(),
+  }) : _ref = ref,
+       _storage = storage ?? const FlutterSecureStorage(),
        super(initialUser) {
     if (restoreOnInit && initialUser == null) {
       _restoreSession();
@@ -492,6 +497,9 @@ class AuthState extends StateNotifier<AppUser?> {
       }
     }
 
+    // Clear pending enrollment submissions to avoid leaking between accounts.
+    await _ref.read(pendingSubmissionStoreProvider).clear();
+
     await _storage.deleteAll();
     state = null;
   }
@@ -737,5 +745,5 @@ class AuthState extends StateNotifier<AppUser?> {
 
 /// Global provider that exposes [AuthState] and the current [AppUser].
 final authProvider = StateNotifierProvider<AuthState, AppUser?>((ref) {
-  return AuthState();
+  return AuthState(ref: ref);
 });

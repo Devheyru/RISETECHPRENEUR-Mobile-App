@@ -8,9 +8,11 @@ Auto-generated from all feature plans. Last updated: 2026-01-20
 
 ## Project Structure
 
+This is a Flutter app: keep production code in `lib/` and tests in `test/`.
+
 ```text
-src/
-tests/
+lib/
+test/
 ```
 
 ## Commands

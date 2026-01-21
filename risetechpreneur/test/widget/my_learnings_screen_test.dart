@@ -60,6 +60,7 @@ void main() {
           overrides: [
             authProvider.overrideWith(
               (ref) => AuthState(
+                ref: ref,
                 restoreOnInit: false,
                 initialUser: AppUser(id: '1', email: 'a@b.com', token: 't'),
               ),
@@ -84,6 +85,7 @@ void main() {
           overrides: [
             authProvider.overrideWith(
               (ref) => AuthState(
+                ref: ref,
                 restoreOnInit: false,
                 initialUser: AppUser(id: '1', email: 'a@b.com', token: 't'),
               ),
@@ -113,6 +115,7 @@ void main() {
           overrides: [
             authProvider.overrideWith(
               (ref) => AuthState(
+                ref: ref,
                 restoreOnInit: false,
                 initialUser: AppUser(id: '1', email: 'a@b.com', token: 't'),
               ),
@@ -143,6 +146,7 @@ void main() {
           overrides: [
             authProvider.overrideWith(
               (ref) => AuthState(
+                ref: ref,
                 restoreOnInit: false,
                 initialUser: AppUser(id: '1', email: 'a@b.com', token: 't'),
               ),

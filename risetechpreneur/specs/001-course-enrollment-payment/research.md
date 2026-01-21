@@ -65,6 +65,9 @@ This document resolves open questions and locks down implementation decisions fo
   - local persistence via `flutter_secure_storage` for pending-submission metadata
 - **Rationale**: Aligns with existing architecture and keeps UI states consistent.
 
+- **Decision**: Clear the local pending-submission store on sign-out.
+- **Rationale**: Prevents pending submissions from appearing under a different account on the same device.
+
 ### Error handling
 
 - **Decision**: Standardize error display using existing patterns (SnackBars + inline error widgets where applicable) and map:

@@ -47,22 +47,39 @@ specs/001-course-enrollment-payment/
 
 ### Source Code (repository root)
 
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
 ```text
 lib/
 ├── core/
+│   ├── enrollment_validation.dart
+│   └── error_handler.dart
 ├── data/
+│   ├── auth_provider.dart
+│   ├── order_models.dart
+│   ├── order_providers.dart
+│   ├── order_repository.dart
+│   ├── pending_cache_reconciliation.dart
+│   └── pending_submission_store.dart
 └── presentation/
+    ├── screens/
+    │   ├── course_detail_screen.dart
+    │   ├── more_screen.dart
+    │   └── my_learnings_screen.dart
+    └── widgets/
+        ├── enrollment_status_badge.dart
+        └── payment_proof_sheet.dart
 
 test/
 ├── unit/
+│   ├── enrollment_validation_test.dart
+│   ├── my_learnings_merge_test.dart
+│   ├── order_models_test.dart
+│   ├── order_repository_test.dart
+│   ├── pending_cache_reconciliation_test.dart
+│   └── pending_submission_store_test.dart
 ├── widget/
+│   ├── course_detail_enrollment_auth_test.dart
+│   ├── course_detail_enrollment_status_test.dart
+│   └── my_learnings_screen_test.dart
 └── golden/ (optional)
 
 integration_test/ (optional but recommended for critical journeys)
